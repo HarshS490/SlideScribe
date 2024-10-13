@@ -1,40 +1,120 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import React from "react";
-import SocialAction from "./SocialAction";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signUpSchema } from "@/models/signUpSchema";
+import { z } from "zod";
+import FormErrors from "@/components/custom/FormErrors";
+import { signIn } from "next-auth/react";
+
+type FormData = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(signUpSchema),
+  });
+
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Something went wrong");
+      }
+
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="container relative mx-auto flex flex-col items-center justify-center min-h-screen">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="text-center">
-          <h1 className="font-medium text-3xl text-blue-700">Sign Up</h1>
+          <h1 className="font-medium text-3xl text-blue-700">{"Sign Up"}</h1>
         </div>
-        <form>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col flex-1  space-y-6">
-            <div className="flex flex-col">
+            <div className="flex flex-col relative">
+              <label htmlFor="username">username</label>
+              <Input
+                type="text"
+                disabled={isLoading}
+                placeholder="username"
+                className={cn({
+                  "border-red-500  focus:outline-none focus:ring-2 focus:ring-red-500":
+                    errors.username,
+                  "border-gray-300": !errors.username,
+                })}
+                {...register("username")}
+              />
+              {errors.username?.message && (
+                <FormErrors message={errors.username?.message} />
+              )}
+            </div>
+
+            <div className="flex flex-col relative">
               <label htmlFor="email">Email</label>
               <Input
-                name="Email"
                 type="text"
+                disabled={isLoading}
                 placeholder="Email"
-                className={cn({ "focus-visible:ring-red-500": true })}
+                className={cn({
+                  "border-red-500  focus:outline-none focus:ring-2 focus:ring-red-500":
+                    errors.email,
+                  "border-gray-300": !errors.email,
+                })}
+                {...register("email")}
               />
+              {errors.email?.message && (
+                <FormErrors message={errors.email?.message} />
+              )}
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col relative">
               <label htmlFor="password">Password</label>
               <Input
-                name="password"
                 type="password"
+                disabled={isLoading}
                 placeholder="Password"
-                className={cn({ "focus-visible:ring-red-500": true })}
+                className={cn({
+                  "border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500":
+                    errors.password,
+                  "border-gray-300": !errors.password,
+                })}
+                {...register("password")}
               />
+              {errors.password?.message && (
+                <FormErrors message={errors.password.message} />
+              )}
             </div>
-            <Button type="submit">Sign Up</Button>
-            <p>
-              Already have an account?{" "}
+            <Button type="submit" disabled={isLoading}>
+              Sign Up
+            </Button>
+            <p className="text-sm">
+              {"Already have an account ? "}
               <Link
                 href={"/login"}
                 className="text-blue-600 underline underline-offset-2"
@@ -49,7 +129,15 @@ export default function SignUp() {
           <span className="inline-block">or</span>
           <hr className="flex-grow" />
         </div>
-        <SocialAction/>
+        <Button
+          type="button"
+          disabled={isLoading}
+          variant={"secondary"}
+          className="flex gap-2"
+        >
+          <span className="icon-[logos--google-icon] w-4 h-4"></span>
+          Continue With Google
+        </Button>
       </div>
     </div>
   );
