@@ -7,7 +7,7 @@ export async function POST(request:NextRequest){
     const body =await request.json();
     const {username,email,password} = body;
     if(!email || !username || !password){
-      return new NextResponse("Missing Info",{status:400});
+      return NextResponse.json({error:"Missing Info",success:false},{status:400});
     }
 
     const user = await prisma.user.findUnique({
@@ -17,7 +17,7 @@ export async function POST(request:NextRequest){
     });
 
     if(user){
-      return new NextResponse("User Already exists",{status:400});
+      return NextResponse.json({error:"Email is linked to another account",success:false},{status:400});
     }
     const hashedPass = await bcrypt.hash(password,12);
     const newUser = await prisma.user.create({
@@ -25,12 +25,18 @@ export async function POST(request:NextRequest){
         email:email,
         name:username,
         password:hashedPass,
+      },
+      select:{
+        name:true,
+        email:true,
+        image:true,
       }
+
     });
 
-    return NextResponse.json({message:"userCreated",data:newUser});
+    return NextResponse.json({sucess:true,data:newUser},{status:200});
   } catch (error) {
     console.log(error,"error occured while registering");
-    return new NextResponse("Internal Server Error",{status:500});
+    return NextResponse.json({error:"Internal Server Error",sucess:false},{status:500});
   }
 }
