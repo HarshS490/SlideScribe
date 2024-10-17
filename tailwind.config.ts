@@ -56,6 +56,10 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      gridTemplateColumns:{
+        "auto-fill-52": 'repeat(auto-fill,minmax(208px, 1fr))',
+        "auto-fit-52": "repeat(auto-fit,minmax(208px,1fr))"
+      }
     },
   },
   plugins: [require("tailwindcss-animate"), addDynamicIconSelectors()],
