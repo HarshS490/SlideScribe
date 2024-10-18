@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import Modal from "./Modal";
 import { Button } from "../ui/button";
 import { Upload, X } from "lucide-react";
@@ -85,7 +85,7 @@ function FileUploadButton() {
     try {
 
     } catch (error) {
-      
+      console.log(error);
     } finally {
       setLoading(false);
     }

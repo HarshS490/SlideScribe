@@ -10,8 +10,8 @@ type Props = {
 const Navbar = ({user}:Props) => {
   
   return (
-    <nav className="flex py-4 px-4 items-center border border-b-gray-200 min-w-max">
-      <div className='sm:w-11/12 w-full mx-auto flex justify-between gap-2'>
+    <nav className="flex items-center border-b py-4 px-4 border-b-gray-200 min-w-max">
+      <div className='w-full flex justify-between gap-2'>
         <div className='flex items-center'>
           <span className='text-xl sm:text-3xl font-semibold'>SlideScribe</span>
         </div>

@@ -1,21 +1,15 @@
-import getSession from "@/app/actions/getSession";
 import FileUploadButton from "@/components/custom/FileUploadModal";
-import Navbar from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Upload } from "lucide-react";
+import { ExternalLink} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import React from "react";
 
 const page = async () => {
-  const data = await getSession();
   return (
     <>
-      <header>
-        <Navbar user={data?.user} />
-      </header>
+      
       <div className="w-full px-4 my-1">
         <main className="sm:w-11/12 w-full mx-auto ">
           <section className="flex items-center justify-between min-w-max my-4">

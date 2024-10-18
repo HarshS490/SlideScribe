@@ -5,7 +5,7 @@ export default withAuth({
         signIn:"/login"
     },
     callbacks:{
-        async authorized({req,token}){
+        async authorized({token}){
             if(!!token){
                 console.log('authenticated');
             }
