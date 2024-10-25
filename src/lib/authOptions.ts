@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -49,6 +50,23 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
   ],
+  callbacks:{
+    async jwt({token,user}) {
+      if(user){
+        token.userId = user.id;
+      }
+      return token;
+    },
+    async session({token,session}){
+      if(session){
+        // @ts-expect-error uncessary error
+        session.user.id = token.userId;
+      }
+      return session;
+    }
+  }
+  ,
+  adapter: PrismaAdapter(prisma),
   pages: {
     signIn: "/login",
   },

@@ -3,21 +3,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema } from "@/models/signUpSchema";
 import { z } from "zod";
 import FormErrors from "@/components/custom/FormErrors";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type FormData = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
+  const {status} = useSession();
 
+  useEffect(()=>{
+    if(status==='authenticated'){
+      setIsLoading(false);
+      router.push("/dashboard");
+    }
+    else if(status==='loading'){
+      setIsLoading(true);
+    }
+  },[status,router]);
   const {
     register,
     handleSubmit,
