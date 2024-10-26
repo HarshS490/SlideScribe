@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { PresentationCardType } from "@/app/types/presentation";
+import { getFileIcon } from "@/app/helper/fileToIcon";
 
 type Props={
   presentation:PresentationCardType
@@ -27,7 +28,7 @@ const PresentationCard = ({presentation}:Props) => {
       <CardContent className="overflow-hidden rounded-lg flex-col items-center p-2 hover:bg-gray-100">
         <div className="w-full relative h-44 bg-white rounded-lg overflow-hidden group">
           <Image
-            src="/placeholder.png"
+            src={getFileIcon(presentation.type)}
             className="w-auto h-auto mx-auto object-cover"
             alt="Presentation thumbnail"
             draggable="false"

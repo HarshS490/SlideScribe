@@ -29,14 +29,14 @@ const page = async () => {
               tabIndex={0}
             >
               <CardContent className="overflow-hidden rounded-lg flex-col items-center p-2 hover:bg-gray-100">
-                <div className="w-full relative h-44 bg-white rounded-lg overflow-hidden group">
+                <div className="w-full relative h-36 bg-white rounded-lg overflow-hidden group">
                   <Image
-                    src="/placeholder.png"
+                    src="/pdf.svg"
                     className="w-auto h-auto mx-auto object-cover"
                     alt="Presentation thumbnail"
                     draggable="false"
                     fill={true}
-                    sizes="(max-width:200px) 80vw,(max-width:1200px) 33vw"
+                    sizes="(max-width:200px) 70vw,(max-width:1200px) 33vw"
                   />
                   <div className="-z-20 relative w-full h-full group-hover:z-20 focus-within:z-20 transition-all  bg-slate-400/50 ">
                     <Link

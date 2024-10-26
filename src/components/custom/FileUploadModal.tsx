@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import Modal from "./Modal";
 import { Button } from "../ui/button";
 import { Upload, X } from "lucide-react";
@@ -8,17 +8,14 @@ import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import FormErrors from "./FormErrors";
 import Image from "next/image";
+import { validTypes } from "@/app/types/fileTypes";
+import { z } from "zod";
+import fileUploadSchema from "@/models/fileUploadSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type FormData = {
-  title: string;
-  file: File;
-};
+type FileUploadSchema = z.infer<typeof fileUploadSchema>;
 
-type AttachedFile = {
-  name:string;
-  type:string;
-}|null;
-
+type AttachedFile = File | null;
 
 function FileUploadButton() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -26,80 +23,49 @@ function FileUploadButton() {
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
     reset,
-    resetField
-  } = useForm<FormData>();
-  const [loading, setLoading] = useState(false);
-  const [attachedFile,setAttachedFile] = useState<AttachedFile>(null);
-
-  const isValidFileSize = (bytes: number) => {
-    const fileSizeMB = bytes / (1024 * 1024);
-    if (fileSizeMB > 2) {
-      return false;
-    }
-    console.log(fileSizeMB);
-    return true;
-  };
-
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const ele = e.target;
-    if (ele.files && ele.files.length > 0) {
-      const selectedFile = ele.files[0];
-      if (
-        selectedFile &&
-        ![
-          ".pdf",
-          "application/pdf",
-          "application/vnd.ms-powerpoint",
-          "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        ].includes(selectedFile.type)
-      ) {
-        setError("file", {
-          type: "invalidType",
-          message:
-            "Please upload a valid file type: PDF or PowerPoint(.ppt,.pptx)",
-        });
-      } else {
-
-        const numberOfBytes = selectedFile.size;
-        console.log(selectedFile.name,selectedFile.type);
-        setAttachedFile({name:selectedFile.name,type:selectedFile.type});
-        if (!isValidFileSize(numberOfBytes)) {
-          setError("file", {
-            type: "invalidSize",
-            message: "File size is greater than 2MB.",
-          });
-
-          setAttachedFile(null);
-        }
-      }
-    }
-    
-  };
-
-  const formSubmit = async (data: FormData) => {
-    setLoading(true);
-    console.log(data);
-    try {
-
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    resetField,
+  } = useForm<FileUploadSchema>({
+    resolver: zodResolver(fileUploadSchema),
+  });
   
+  const file = register("file", { required: {value:true,message:"Please upload a file"} });
+
+  const [loading, setLoading] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<AttachedFile>(null);
+
+
+  const formSubmit = (data:FileUploadSchema) => {
+    setLoading(true);
+
+    console.log(data);
+    setLoading(false);
+  };
+
   const handleClose = () => {
     setAttachedFile(null);
     reset();
     closeModal();
   };
 
-  const handleFileRemove = ()=>{
+  const handleFileRemove = () => {
     setAttachedFile(null);
     resetField("file");
+  };
+
+  const onFileChange = (e:ChangeEvent<HTMLInputElement>)=>{
+    e.persist();
+    const ele = e.target;
+    if(ele.files && ele.files.length>0){
+      const selectedFile =ele.files[0];
+      if(selectedFile && validTypes.includes(selectedFile.type)){
+        setAttachedFile(selectedFile);
+      }
+      else{
+        setAttachedFile(null);
+      }
+    }
   }
 
   return (
@@ -143,12 +109,7 @@ function FileUploadButton() {
                 id="title-input"
                 className="block"
                 required={true}
-                {...register("title", {
-                  minLength: {
-                    value: 4,
-                    message: "Title should be atleast 4 characters long",
-                  },
-                })}
+                {...register("title")}
                 disabled={loading}
                 aria-disabled={loading}
               />
@@ -158,19 +119,24 @@ function FileUploadButton() {
             </div>
             <div className="my-3">
               <label
-                htmlFor="file-input"
+                htmlFor="file"
                 className="block max-w-max font-medium text-white bg-cyan-700 p-2 rounded-lg hover:bg-cyan-800"
               >
                 Choose File
               </label>
               <Input
                 type="file"
-                id="file-input"
+                id="file"
                 accept=""
                 className="hidden "
-                {...register("file",{required:{value:true,message:"Please upload a file"}})}
+                onChange={(e) => {
+                  e.persist();
+                  file.onChange(e);
+                  onFileChange(e);
+                }}
+                ref={file.ref}
+                name={file.name}
                 aria-describedby="file-input-help"
-                onChange={onFileChange}
                 disabled={loading}
                 aria-disabled={loading}
               />
@@ -185,19 +151,30 @@ function FileUploadButton() {
                 <FormErrors message={errors.file.message} />
               )}
             </div>
-            {
-             attachedFile && <div className="w-full py-2 px-4 flex justify-between items-center my-2 rounded-lg border border-dotted border-gray-300">
+            {attachedFile && (
+              <div className="w-full py-2 px-4 flex justify-between items-center my-2 rounded-lg border border-dotted border-gray-300">
                 <div className="col-span-1">
-                  <Image src={["application/pdf",".pdf"].includes(attachedFile.type)?"/pdf.svg":"/ppt.svg"} alt="file icon" width={28} height={28}/>
+                  <Image
+                    src={
+                      ["application/pdf", ".pdf"].includes(attachedFile.type)
+                        ? "/pdf.svg"
+                        : "/ppt.svg"
+                    }
+                    alt="file icon"
+                    width={28}
+                    height={28}
+                  />
                 </div>
                 <div className="col-span-2 min-w-0 flex-shrink-1 flex-grow-0">
-                  <span className="text-sm text-gray-600 block whitespace-nowrap overflow-hidden overflow-ellipsis ">{
-                    attachedFile.name
-                  }</span>
+                  <span className="text-sm text-gray-600 block whitespace-nowrap overflow-hidden overflow-ellipsis ">
+                    {attachedFile.name}
+                  </span>
                 </div>
-                <div className="col-span-1 " onClick={handleFileRemove}><X size={20}></X></div>
-             </div> 
-            }
+                <div className="col-span-1 " onClick={handleFileRemove}>
+                  <X size={20}></X>
+                </div>
+              </div>
+            )}
 
             <div>
               <Button
