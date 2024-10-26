@@ -8,12 +8,13 @@ cloudinary.config({
   api_secret:process.env.CLOUDINARY_API_SECRET
 }) 
 
+
 export const uploadOnCloudinary = async (localFilePath:string)=>{
   try {
     if(!localFilePath) return new Error("File Path not found");
-    // upload file
+    
     const response = await cloudinary.uploader.upload(localFilePath,{
-      resource_type:"raw",
+      resource_type:"auto",
       folder:process.env.CLOUDINARY_FOLDERNAME
     })
     return response.url;

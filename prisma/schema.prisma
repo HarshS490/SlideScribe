@@ -25,6 +25,7 @@ model Presentation {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   link      String
   title     String
+  type      String
   user      User     @relation("UserToPresentation", fields: [userId], references: [id])
   userId    String   @db.ObjectId
   scripts   Script[]
