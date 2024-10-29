@@ -33,6 +33,8 @@ const PresentationCard = ({presentation}:Props) => {
             alt="Presentation thumbnail"
             draggable="false"
             fill={true}
+            sizes="(max-width:200px) 70vw,(max-width:1200px) 33vw"
+
           />
           <div className="-z-20 relative w-full h-full group-hover:z-20 focus-within:z-20 transition-all  bg-slate-400/50 ">
             <Link

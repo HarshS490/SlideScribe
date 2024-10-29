@@ -2,7 +2,7 @@
 import React, { ChangeEvent, useState } from "react";
 import Modal from "./Modal";
 import { Button } from "../ui/button";
-import { Upload, X } from "lucide-react";
+import { Loader, Upload, X } from "lucide-react";
 import useModal from "@/app/hooks/useModal";
 import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
@@ -12,6 +12,7 @@ import { validTypes } from "@/app/types/fileTypes";
 import { z } from "zod";
 import fileUploadSchema from "@/models/fileUploadSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 
 type FileUploadSchema = z.infer<typeof fileUploadSchema>;
 
@@ -36,11 +37,30 @@ function FileUploadButton() {
   const [attachedFile, setAttachedFile] = useState<AttachedFile>(null);
 
 
-  const formSubmit = (data:FileUploadSchema) => {
+  const formSubmit =async (data:FileUploadSchema) => {
     setLoading(true);
 
-    console.log(data);
-    setLoading(false);
+
+    try {
+      const formData = new FormData();
+      formData.append("title",data.title);
+      formData.append("file",data.file[0]);
+
+      const response = await fetch("/api/upload/file",{
+        method:"POST",
+        body:formData, 
+      }); 
+      if(!response.ok){
+        return new Error(response.statusText);
+      }
+      toast.success("File Uploaded",{id:"FileUploadSuccess"});
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      toast("Error uploading file",{id:"FileUploadError"});
+    }finally{
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -120,7 +140,8 @@ function FileUploadButton() {
             <div className="my-3">
               <label
                 htmlFor="file"
-                className="block max-w-max font-medium text-white bg-cyan-700 p-2 rounded-lg hover:bg-cyan-800"
+                aria-disabled={loading}
+                className="block max-w-max font-medium text-white bg-cyan-700 p-2 rounded-lg hover:bg-cyan-800 disabled:bg-cyan-300"
               >
                 Choose File
               </label>
@@ -185,7 +206,7 @@ function FileUploadButton() {
                 disabled={loading}
                 aria-disabled={loading}
               >
-                <Upload className="size-4 " />
+                {!loading  ? <Upload className="size-4 " /> : <Loader className="size-4 animate-spin"/>}
                 <span className="block">Upload </span>
               </Button>
             </div>

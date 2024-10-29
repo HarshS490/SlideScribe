@@ -13,7 +13,7 @@ const fileUploadSchema = z.object({
     .min(4, { message: "Title should be at least 4 characters long" }),
 
   file: z
-    .instanceof(FileList) // Ensures file is a FileList
+    .any() // Ensures file is a FileList
     .refine((files) => files.length > 0, {
       message: "Please upload a file",
     })

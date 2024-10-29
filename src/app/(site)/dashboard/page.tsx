@@ -28,24 +28,24 @@ const page = async () => {
               aria-label="Presentation"
               tabIndex={0}
             >
-              <CardContent className="overflow-hidden rounded-lg flex-col items-center p-2 hover:bg-gray-100">
+              <CardContent className="overflow-hidden rounded-lg flex-col items-center p-2 hover:bg-gray-100 transition-colors ">
                 <div className="w-full relative h-36 bg-white rounded-lg overflow-hidden group">
                   <Image
                     src="/pdf.svg"
-                    className="w-auto h-auto mx-auto object-cover"
+                    className="w-auto h-auto mx-auto object-cover group-hover:scale-105 transition-all "
                     alt="Presentation thumbnail"
                     draggable="false"
                     fill={true}
                     sizes="(max-width:200px) 70vw,(max-width:1200px) 33vw"
                   />
-                  <div className="-z-20 relative w-full h-full group-hover:z-20 focus-within:z-20 transition-all  bg-slate-400/50 ">
+                  <div className="-z-20 relative w-full h-full group-hover:z-20 focus-within:z-20  group-hover:bg-slate-400/50 transition-all ease-in-out  ">
                     <Link
                       href={`/dashboard/#`}
                       aria-label="Open the presentation"
                       className="absolute top-1 right-1 focus:outline-none "
                       tabIndex={0}
                     >
-                      <ExternalLink className="stroke-cyan-800 hover:stroke-cyan-900"></ExternalLink>
+                      <ExternalLink className="stroke-cyan-800  hover:stroke-cyan-900"></ExternalLink>
                     </Link>
                   </div>
                 </div>
