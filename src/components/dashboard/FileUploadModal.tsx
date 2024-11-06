@@ -13,6 +13,7 @@ import { z } from "zod";
 import fileUploadSchema from "@/models/fileUploadSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
 type FileUploadSchema = z.infer<typeof fileUploadSchema>;
 
@@ -57,10 +58,9 @@ function FileUploadButton() {
       toast.success("File Uploaded", { id: "FileUploadSuccess" });
       console.log(response);
     } catch (error) {
-      if(error instanceof Error){
-        toast.error(error.message,{id:"FileUploadError"});
-      }
-      else{
+      if (error instanceof Error) {
+        toast.error(error.message, { id: "FileUploadError" });
+      } else {
         toast.error("Error uploading file");
       }
     } finally {
@@ -145,7 +145,10 @@ function FileUploadButton() {
               <label
                 htmlFor="file"
                 aria-disabled={loading}
-                className="block max-w-max font-medium text-white bg-cyan-700 p-2 rounded-lg hover:bg-cyan-800 disabled:bg-cyan-300"
+                className={cn(
+                  "block max-w-max font-medium text-white bg-cyan-700 p-2 rounded-lg hover:bg-cyan-800 cursor-pointer",
+                  { "bg-cyan-700/50 hover:bg-cyan-700/50 cursor-default": loading }
+                )}
               >
                 Choose File
               </label>
@@ -195,9 +198,15 @@ function FileUploadButton() {
                     {attachedFile.name}
                   </span>
                 </div>
-                <div className="col-span-1 " onClick={handleFileRemove}>
+                <Button
+                  variant={'ghost'}
+                  size={'icon'}
+                  className="col-span-1 hover:bg-cyan-100 cursor-pointer text-gray-600 hover:text-gray-800 rounded-full p-1"
+                  onClick={handleFileRemove}
+                  disabled={loading}
+                >
                   <X size={20}></X>
-                </div>
+                </Button>
               </div>
             )}
 
