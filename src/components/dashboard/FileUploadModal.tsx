@@ -57,8 +57,12 @@ function FileUploadButton() {
       toast.success("File Uploaded", { id: "FileUploadSuccess" });
       console.log(response);
     } catch (error) {
-      console.log(error);
-      toast("Error uploading file", { id: "FileUploadError" });
+      if(error instanceof Error){
+        toast.error(error.message,{id:"FileUploadError"});
+      }
+      else{
+        toast.error("Error uploading file");
+      }
     } finally {
       setLoading(false);
     }
