@@ -1,12 +1,12 @@
 "use client";
 import React, { ChangeEvent, useState } from "react";
-import Modal from "./Modal";
+import Modal from "../custom/Modal";
 import { Button } from "../ui/button";
 import { Loader, Upload, X } from "lucide-react";
 import useModal from "@/app/hooks/useModal";
 import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
-import FormErrors from "./FormErrors";
+import FormErrors from "../custom/FormErrors";
 import Image from "next/image";
 import { validTypes } from "@/app/types/fileTypes";
 import { z } from "zod";
@@ -46,12 +46,13 @@ function FileUploadButton() {
       formData.append("title",data.title);
       formData.append("file",data.file[0]);
 
-      const response = await fetch("/api/upload/file",{
+      const response = await fetch("/api/file/upload",{
         method:"POST",
         body:formData, 
       }); 
       if(!response.ok){
-        return new Error(response.statusText);
+        console.log(response.statusText);
+        throw new Error(response.statusText);
       }
       toast.success("File Uploaded",{id:"FileUploadSuccess"});
       console.log(response);

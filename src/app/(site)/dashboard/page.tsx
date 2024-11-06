@@ -1,4 +1,4 @@
-import FileUploadButton from "@/components/custom/FileUploadModal";
+import FileUploadButton from "@/components/dashboard/FileUploadModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExternalLink} from "lucide-react";
 import Image from "next/image";
