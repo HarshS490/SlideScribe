@@ -26,6 +26,7 @@ model Presentation {
   link      String
   title     String   @unique
   type      String
+  name      String
   thumbnail String?
   public_id String
   user      User     @relation("UserToPresentation", fields: [userId], references: [id])

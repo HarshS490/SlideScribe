@@ -30,36 +30,36 @@ function FileUploadButton() {
   } = useForm<FileUploadSchema>({
     resolver: zodResolver(fileUploadSchema),
   });
-  
-  const file = register("file", { required: {value:true,message:"Please upload a file"} });
+
+  const file = register("file", {
+    required: { value: true, message: "Please upload a file" },
+  });
 
   const [loading, setLoading] = useState(false);
   const [attachedFile, setAttachedFile] = useState<AttachedFile>(null);
 
-
-  const formSubmit =async (data:FileUploadSchema) => {
+  const formSubmit = async (data: FileUploadSchema) => {
     setLoading(true);
-
 
     try {
       const formData = new FormData();
-      formData.append("title",data.title);
-      formData.append("file",data.file[0]);
-
-      const response = await fetch("/api/file/upload",{
-        method:"POST",
-        body:formData, 
-      }); 
-      if(!response.ok){
+      formData.append("title", data.title);
+      formData.append("file", data.file[0]);
+      formData.append("name", attachedFile?.name || "");
+      const response = await fetch("/api/file/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
         console.log(response.statusText);
         throw new Error(response.statusText);
       }
-      toast.success("File Uploaded",{id:"FileUploadSuccess"});
+      toast.success("File Uploaded", { id: "FileUploadSuccess" });
       console.log(response);
     } catch (error) {
       console.log(error);
-      toast("Error uploading file",{id:"FileUploadError"});
-    }finally{
+      toast("Error uploading file", { id: "FileUploadError" });
+    } finally {
       setLoading(false);
     }
   };
@@ -75,19 +75,18 @@ function FileUploadButton() {
     resetField("file");
   };
 
-  const onFileChange = (e:ChangeEvent<HTMLInputElement>)=>{
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.persist();
     const ele = e.target;
-    if(ele.files && ele.files.length>0){
-      const selectedFile =ele.files[0];
-      if(selectedFile && validTypes.includes(selectedFile.type)){
+    if (ele.files && ele.files.length > 0) {
+      const selectedFile = ele.files[0];
+      if (selectedFile && validTypes.includes(selectedFile.type)) {
         setAttachedFile(selectedFile);
-      }
-      else{
+      } else {
         setAttachedFile(null);
       }
     }
-  }
+  };
 
   return (
     <>
@@ -207,7 +206,11 @@ function FileUploadButton() {
                 disabled={loading}
                 aria-disabled={loading}
               >
-                {!loading  ? <Upload className="size-4 " /> : <Loader className="size-4 animate-spin"/>}
+                {!loading ? (
+                  <Upload className="size-4 " />
+                ) : (
+                  <Loader className="size-4 animate-spin" />
+                )}
                 <span className="block">Upload </span>
               </Button>
             </div>
