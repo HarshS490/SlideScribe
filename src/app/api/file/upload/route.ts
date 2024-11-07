@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const data = await req.formData();
     const file = data.get("file") as File | null;
     const title = data.get("title") as string;
-    const name = data.get("name") as string + String(Date.now());
+    const name = data.get("name") as string+ "-" + String(Date.now());
     if (!file || !title) {
       return NextResponse.json(
         { error: "Missing file or title.", success: false },

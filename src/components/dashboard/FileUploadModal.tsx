@@ -14,12 +14,17 @@ import fileUploadSchema from "@/models/fileUploadSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { Presentation } from "@prisma/client";
 
 type FileUploadSchema = z.infer<typeof fileUploadSchema>;
 
 type AttachedFile = File | null;
 
-function FileUploadButton() {
+type Props = {
+  updatePresentations: (newItem: Presentation) => void;
+};
+
+function FileUploadButton({updatePresentations}: Props) {
   const { isOpen, openModal, closeModal } = useModal();
 
   const {
@@ -39,13 +44,13 @@ function FileUploadButton() {
   const [loading, setLoading] = useState(false);
   const [attachedFile, setAttachedFile] = useState<AttachedFile>(null);
 
-  const formSubmit = async (data: FileUploadSchema) => {
+  const formSubmit = async (formdata: FileUploadSchema) => {
     setLoading(true);
 
     try {
       const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("file", data.file[0]);
+      formData.append("title", formdata.title);
+      formData.append("file", formdata.file[0]);
       formData.append("name", attachedFile?.name || "");
       const response = await fetch("/api/file/upload", {
         method: "POST",
@@ -56,6 +61,8 @@ function FileUploadButton() {
         throw new Error(response.statusText);
       }
       toast.success("File Uploaded", { id: "FileUploadSuccess" });
+      const {data} = await response.json();
+      updatePresentations(data);
       console.log(response);
     } catch (error) {
       if (error instanceof Error) {
@@ -65,6 +72,7 @@ function FileUploadButton() {
       }
     } finally {
       setLoading(false);
+      closeModal();
     }
   };
 
@@ -147,7 +155,10 @@ function FileUploadButton() {
                 aria-disabled={loading}
                 className={cn(
                   "block max-w-max font-medium text-white bg-cyan-700 p-2 rounded-lg hover:bg-cyan-800 cursor-pointer",
-                  { "bg-cyan-700/50 hover:bg-cyan-700/50 cursor-default": loading }
+                  {
+                    "bg-cyan-700/50 hover:bg-cyan-700/50 cursor-default":
+                      loading,
+                  }
                 )}
               >
                 Choose File
@@ -199,8 +210,8 @@ function FileUploadButton() {
                   </span>
                 </div>
                 <Button
-                  variant={'ghost'}
-                  size={'icon'}
+                  variant={"ghost"}
+                  size={"icon"}
                   className="col-span-1 hover:bg-cyan-100 cursor-pointer text-gray-600 hover:text-gray-800 rounded-full p-1"
                   onClick={handleFileRemove}
                   disabled={loading}
