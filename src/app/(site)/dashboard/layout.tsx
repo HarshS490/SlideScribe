@@ -12,10 +12,10 @@ async function layout({ children }: Props) {
   const data = await getSession();
   return (
     <>
+      <header className="relative mb-20">
+        <Navbar user={data?.user} />
+      </header>
       <WidthWrapper>
-        <header>
-          <Navbar user={data?.user} />
-        </header>
 
         {children}
       </WidthWrapper>
