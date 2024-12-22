@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import {Toaster} from "react-hot-toast"
 import AuthContext from "./context/AuthContext";
+import NextTopLoader from "nextjs-toploader";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
+        <NextTopLoader color="#11bab7"/>
         <Toaster/>
         <AuthContext>
           {children}

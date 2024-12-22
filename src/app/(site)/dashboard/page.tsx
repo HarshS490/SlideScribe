@@ -1,9 +1,7 @@
 "use client";
 import { PresentationDisplayType } from "@/app/types/presentation";
-import FileUploadButton from "@/components/dashboard/FileUploadModal";
 import PresentationGallery from "@/components/dashboard/PresentationGallery";
 import { Presentation } from "@prisma/client";
-
 import React, {useState } from "react";
 
 const Page = () => {
