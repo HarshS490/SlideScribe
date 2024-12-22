@@ -13,7 +13,7 @@ function PresentationList({ presentations, query, sortBy }: Props) {
     const clonedPresentations = [...(presentations || [])];
 
     clonedPresentations.sort((a, b) => {
-      if (sortBy == "title") {
+      if (sortBy.toLowerCase() == "title") {
         if (a.title > b.title) return 1;
         else if (a.title < b.title) return -1;
         return a.createdAt.getTime() - b.createdAt.getTime();
