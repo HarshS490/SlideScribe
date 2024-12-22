@@ -38,6 +38,7 @@ function PresentationList({ presentations, query, sortBy }: Props) {
             <PresentationCard
               presentation={presentation}
               key={presentation.id}
+              highlight={query}
             />
           );
         })}

@@ -1,16 +1,17 @@
-import React, { useRef } from "react";
+import React, {  useRef } from "react";
 import { Card, CardContent } from "../ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink} from "lucide-react";
 import { PresentationDisplayType } from "@/app/types/presentation";
 import { getFileIcon } from "@/app/helper/fileToIcon";
 
 type Props = {
   presentation: PresentationDisplayType;
+  highlight: string;
 };
 
-const PresentationCard = ({ presentation }: Props) => {
+const PresentationCard = ({ presentation, highlight }: Props) => {
   const linkRef = useRef<HTMLAnchorElement>(null);
   const handleParentClick = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -20,6 +21,22 @@ const PresentationCard = ({ presentation }: Props) => {
       linkRef.current.click();
     }
   };
+
+  const getHighlightedText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const regex = new RegExp(`(${highlight})`, "gi");
+    const parts = text.split(regex);
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <span key={index} className="bg-yellow-200 font-bold">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <Card
       className="w-full h-full min-w-52 max-w-96 focus:focus-within:outline-none focus:ring-1   focus:ring-cyan-600 cursor-pointer"
@@ -49,7 +66,9 @@ const PresentationCard = ({ presentation }: Props) => {
             </Link>
           </div>
         </div>
-        <h2 className="text-lg font-medium my-2 text-slate-700 px-2">{presentation.title}</h2>
+        <h2 className="presentation-title text-lg font-medium my-2 text-slate-700 px-2">
+          {getHighlightedText(presentation.title,highlight)}
+        </h2>
       </CardContent>
     </Card>
   );
