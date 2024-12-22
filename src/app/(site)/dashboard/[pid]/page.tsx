@@ -1,3 +1,4 @@
+import PresentationNarration from "@/components/dashboard/PresentationNarration";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
@@ -34,6 +35,7 @@ function page({ params }: Props) {
           <h1 className="text-center text-xl font-semibold">
             {"Presentation Title"}
           </h1>
+          <PresentationNarration/>
         </section>
       </div>
     </>

@@ -2,6 +2,7 @@
 import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryError } from "./errors";
+import { validTypes } from "@/app/types/fileTypes";
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -27,8 +28,15 @@ export const uploadFile = async (localFilePath: string) => {
 
 export const uploadFileCloudinary = async (file: File) => {
   try {
-    if (!file) throw new CloudinaryError("File not provided");
+    let format = "";
+    if(file.type===validTypes[0]){
+      format = "pdf";
+    }
+    else if(validTypes.includes(file.type)){
+      format = "pptx"
+    }
 
+    if (!file) throw new CloudinaryError("File not provided");
     const buffer = await file.arrayBuffer();
     const bytes = Buffer.from(buffer);
 
@@ -38,6 +46,7 @@ export const uploadFileCloudinary = async (file: File) => {
           {
             resource_type: "raw",
             folder: process.env.CLOUDINARY_FOLDERNAME,
+            format:format,
           },
           async (error, res) => {
             if (error) {

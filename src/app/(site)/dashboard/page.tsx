@@ -1,11 +1,10 @@
 "use client";
 import { PresentationDisplayType } from "@/app/types/presentation";
-import Loader from "@/components/custom/Loader";
 import FileUploadButton from "@/components/dashboard/FileUploadModal";
-import PresentationList from "@/components/dashboard/PresentationList";
+import PresentationGallery from "@/components/dashboard/PresentationGallery";
 import { Presentation } from "@prisma/client";
 
-import React, { Suspense, useState } from "react";
+import React, {useState } from "react";
 
 const Page = () => {
   const [presentations, setPresentations] = useState<
@@ -21,17 +20,18 @@ const Page = () => {
   return (
     <>
       <div className="w-full px-4 my-1">
-        <main className="sm:w-11/12 w-full mx-auto ">
+        <main className="w-full  mx-auto ">
           <section className="flex items-center justify-between min-w-max my-4">
             <h1 className="block text-lg sm:text-2xl font-medium min-w-max">
               Your Presentation
             </h1>
-            <FileUploadButton updatePresentations={addPresentation} />
+            
           </section>
 
-          <PresentationList
+          <PresentationGallery
             presentations={presentations}
             updatePresentations={setPresentations}
+            updatePresentationList={addPresentation}
           />
         </main>
       </div>
