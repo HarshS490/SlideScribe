@@ -22,8 +22,8 @@ function PresentationList({ presentations, query, sortBy }: Props) {
       }
     });
 
-    const lowerQuery = query;
-    lowerQuery.toLowerCase();
+    const lowerQuery = query.toLocaleLowerCase();
+    
     return clonedPresentations.filter((item) => {
       const title = item.title.toLowerCase();
       return title.includes(lowerQuery);
