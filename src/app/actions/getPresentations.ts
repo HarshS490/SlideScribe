@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "./getCurrentUse";
+import { getCurrentUser } from "./getCurrentUser";
 import { PresentationDisplayType } from "../types/presentation";
 
 const getPresentations = async () => {

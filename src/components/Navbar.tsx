@@ -1,9 +1,9 @@
-import { User } from '@prisma/client';
 import React from 'react'
 import Avatar from './Avatar';
+import { AvatarType } from '@/app/types/user.types';
 
 type Props = {
-  user: User|null;
+  user: AvatarType|null;
 }
 
 const Navbar = ({user}:Props) => {

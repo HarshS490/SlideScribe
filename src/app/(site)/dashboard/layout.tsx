@@ -7,15 +7,18 @@ type Props = {
 };
 
 async function layout({ children }: Props) {
-  const data = await getSession();
+  const session = await getSession();
+  const user = session?.user ?{
+    name: session.user.name || null,
+    email: session.user.email || null,
+    image: session.user.email || null,
+  }:null;
   return (
     <>
       <header className="relative mb-20">
-        <Navbar user={data?.user} />
+        <Navbar user={user} />
       </header>
-      <WidthWrapper>
-        {children}
-      </WidthWrapper>
+      <WidthWrapper>{children}</WidthWrapper>
     </>
   );
 }

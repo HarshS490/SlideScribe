@@ -1,8 +1,8 @@
-import { getCurrentUser } from "@/app/actions/getCurrentUse";
+import { getCurrentUser } from "@/app/actions/getCurrentUser";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function Delete(req:NextRequest){
+export async function DELETE(req:NextRequest){
   try {
     const user = await getCurrentUser();
     if(!user){

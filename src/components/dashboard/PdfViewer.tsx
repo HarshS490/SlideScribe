@@ -96,7 +96,7 @@ export default function PdfViewer({ url }: Props) {
             {Array.from(new Array(numPages), (_el, index) => (
               <div
                 key={`page_${index + 1}`}
-                ref={(el) => (pageRefs.current[index] = el)}
+                ref={(el :HTMLDivElement | null) => {pageRefs.current[index] = el}}
               >
                 <Page scale={zoom} pageNumber={index + 1} width={maxWidth} loading={<DocumentLoader/>} className={"flex justify-center"}/>
               </div>
@@ -141,7 +141,7 @@ export default function PdfViewer({ url }: Props) {
                 value={currentPage}
                 type="number"
                 onChange={(e)=>{
-                  const val:number = e.target.value;
+                  const val:number = parseInt(e.target.value,10);
                   setCurrentPage(val);
                 }}
                 className="w-5 p-0 inline outline-gray-50 h-7 bg-gray-100 px-1"

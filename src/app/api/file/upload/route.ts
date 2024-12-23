@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/app/actions/getCurrentUse";
+import { getCurrentUser } from "@/app/actions/getCurrentUser";
 import { validTypes } from "@/app/types/fileTypes";
 import {
   deleteFromCloudinary,

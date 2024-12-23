@@ -60,7 +60,7 @@ export default function SignUp() {
       });
     } catch (error) {
       console.log(error);
-      toast.error(error?.message);
+      toast.error("Sign Up Error!",{id:"SIGNUP_ERROR"});
     } finally {
       setIsLoading(false);
     }

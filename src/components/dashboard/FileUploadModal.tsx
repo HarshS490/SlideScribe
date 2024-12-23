@@ -187,7 +187,7 @@ function FileUploadButton({updatePresentations}: Props) {
                 <sup className="text-red-500">*</sup>
               </span>
               {errors.file?.message && (
-                <FormErrors message={errors.file.message} />
+                <FormErrors message={errors.file.message.toString()} />
               )}
             </div>
             {attachedFile && (

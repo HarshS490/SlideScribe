@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "./getCurrentUse";
+import { getCurrentUser } from "./getCurrentUser";
 
 async function getPresentationById(id:string){
   try {
