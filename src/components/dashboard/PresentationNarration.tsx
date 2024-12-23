@@ -1,15 +1,17 @@
 "use client";
 import { EllipsisVertical } from "lucide-react";
 import React, { useRef, useState } from "react";
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import PdfViewer from "./PresentationViewer";
+import PdfViewer from "./PdfViewer";
+import { Presentation } from "@prisma/client";
 
-type Props = {};
+type Props = {
+  presentation: Presentation | null;
+};
 
-function PresentationNarration({}: Props) {
+function PresentationNarration({ presentation }: Props) {
   const MIN_WIDTH = 250; // Minimum width for columns
   const [columnWidths, setColumnWidths] = useState<Array<number>>([500, 500]);
-  const isResizing = useRef(false); 
+  const isResizing = useRef(false);
 
   const onMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -41,7 +43,6 @@ function PresentationNarration({}: Props) {
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-
   return (
     <div className="w-full flex justify-center items-stretch gap-1 my-4">
       {/* Left Column */}
@@ -49,7 +50,8 @@ function PresentationNarration({}: Props) {
         style={{ width: `${columnWidths[0]}px`, minWidth: `${MIN_WIDTH}px` }}
         className="bg-gray-200 p-4 rounded-lg flex-grow flex-shrink"
       >
-        <PdfViewer/>
+        {/* <PdfViewer/> */}
+        <PdfViewer url={presentation?presentation.link:""} />
       </div>
 
       <div

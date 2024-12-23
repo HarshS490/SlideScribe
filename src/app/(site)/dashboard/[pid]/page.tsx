@@ -1,7 +1,9 @@
+import getPresentationById from "@/app/actions/getPresentationById";
 import PresentationNarration from "@/components/dashboard/PresentationNarration";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import React from "react";
 
 type Props = {
@@ -10,7 +12,12 @@ type Props = {
   };
 };
 
-function page({ params }: Props) {
+async function page({ params }: Props) {
+  const docid = params.pid;
+  const presentation = await getPresentationById(docid);
+  if(!presentation){
+    notFound();
+  }
   return (
     <>
       <div className="p-4">
@@ -32,10 +39,10 @@ function page({ params }: Props) {
           </Button>
         </section>
         <section>
-          <h1 className="text-center text-xl font-semibold">
-            {"Presentation Title"}
+          <h1 className="text-center text-xl font-semibold text-cyan-900">
+            {presentation?presentation.title:"No file Found"}
           </h1>
-          <PresentationNarration/>
+          <PresentationNarration presentation={presentation}/>
         </section>
       </div>
     </>

@@ -38,7 +38,6 @@ function PresentationGallery({
     const fetchData = async () => {
       setLoading(true);
       const response = await getPresentations();
-      console.log(response);
       if (isMounted) {
         updatePresentations(response);
         setLoading(false);

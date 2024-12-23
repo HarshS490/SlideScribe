@@ -4,6 +4,7 @@ import "./globals.css";
 import {Toaster} from "react-hot-toast"
 import AuthContext from "./context/AuthContext";
 import NextTopLoader from "nextjs-toploader";
+import "../utils/polyfills"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
