@@ -7,7 +7,6 @@ import "react-pdf/dist/esm/Page/TextLayer.css";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import DocumentLoader from "./DocumentLoader";
-import { error } from "console";
 import DocumentLoadError from "./DocumentLoadError";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
