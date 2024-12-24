@@ -29,6 +29,9 @@ export default function Login() {
     else if(status==='loading'){
       setIsLoading(true);
     }
+    else if(status==="unauthenticated"){
+      setIsLoading(false);
+    }
   },[status,router]);
   const {
     register,

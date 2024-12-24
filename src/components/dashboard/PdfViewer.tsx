@@ -139,12 +139,11 @@ export default function PdfViewer({ url }: Props) {
               Page &nbsp;
               <Input
                 value={currentPage}
-                type="number"
                 onChange={(e)=>{
                   const val:number = parseInt(e.target.value,10);
                   setCurrentPage(val);
                 }}
-                className="w-5 p-0 inline outline-gray-50 h-7 bg-gray-100 px-1"
+                className="w-7 p-0 inline outline-gray-50 h-7 bg-gray-100 "
               />
               &nbsp;of {numPages}
             </span>
