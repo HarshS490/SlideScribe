@@ -6,6 +6,7 @@ interface ErrorDocumentProps {
 }
 
 export default function DocumentLoadError({ message = "There was an error loading the document."}: ErrorDocumentProps) {
+  
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>

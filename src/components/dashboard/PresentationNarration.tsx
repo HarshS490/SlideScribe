@@ -9,21 +9,19 @@ type Props = {
 };
 
 function PresentationNarration({ presentation }: Props) {
-  const MIN_WIDTH = 250; // Minimum width for columns
+  const MIN_WIDTH = 250;
   const [columnWidths, setColumnWidths] = useState<Array<number>>([500, 500]);
   const isResizing = useRef(false);
 
   const onMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
-    isResizing.current = true; // Start resizing
+    isResizing.current = true;
     const startX = e.clientX;
 
-    const initialWidths = [...columnWidths]; // Capture initial widths
-
+    const initialWidths = [...columnWidths];
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing.current) return; // Ignore if not resizing
-
-      const deltaX = e.clientX - startX; // Calculate horizontal movement
+      if (!isResizing.current) return;
+      const deltaX = e.clientX - startX;
       const newLeftWidth = initialWidths[0] + deltaX;
       const newRightWidth = initialWidths[1] - deltaX;
 

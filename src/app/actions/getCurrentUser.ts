@@ -11,7 +11,7 @@ export const getCurrentUser = async ()=>{
       where:{
         email:session.user.email
       }
-    })
+    });
 
     if(!currentUser) return null;
 

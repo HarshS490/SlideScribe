@@ -1,5 +1,5 @@
 import getSession from "@/app/actions/getSession";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/user/Navbar";
 import WidthWrapper from "@/components/WidthWrapper";
 import React from "react";
 type Props = {
