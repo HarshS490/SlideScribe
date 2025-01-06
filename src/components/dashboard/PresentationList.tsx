@@ -13,12 +13,14 @@ function PresentationList({ presentations, query, sortBy }: Props) {
     const clonedPresentations = [...(presentations || [])];
 
     clonedPresentations.sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
       if (sortBy.toLowerCase() == "title") {
         if (a.title > b.title) return 1;
         else if (a.title < b.title) return -1;
-        return a.createdAt.getTime() - b.createdAt.getTime();
+        return dateA.getTime() - dateB.getTime();
       } else {
-        return a.createdAt.getTime() - b.createdAt.getTime();
+        return dateA.getTime() - dateB.getTime();
       }
     });
 

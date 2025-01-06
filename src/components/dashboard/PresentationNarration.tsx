@@ -1,8 +1,11 @@
 "use client";
 import { EllipsisVertical } from "lucide-react";
 import React, { useRef, useState } from "react";
-import PdfViewer from "./PdfViewer";
+import PdfViewer from "./viewers/PdfViewer";
 import { Presentation } from "@prisma/client";
+import GenerateNarration from "./Narration/GenerateNarration";
+import { validTypes } from "@/app/types/fileTypes";
+import PPTViewer from "./viewers/PPTViewer";
 
 type Props = {
   presentation: Presentation | null;
@@ -49,7 +52,11 @@ function PresentationNarration({ presentation }: Props) {
         className="bg-gray-200 p-4 rounded-lg flex-grow flex-shrink"
       >
         {/* <PdfViewer/> */}
-        <PdfViewer url={presentation?presentation.link:""} />
+        {presentation?.type === validTypes[0] ? (
+          <PdfViewer url={presentation ? presentation.link : ""} />
+        ) : (
+          <PPTViewer url={presentation ? presentation.link : ""} />
+        )}
       </div>
 
       <div
@@ -63,7 +70,9 @@ function PresentationNarration({ presentation }: Props) {
         style={{ width: `${columnWidths[1]}px`, minWidth: `${MIN_WIDTH}px` }}
         className="bg-gray-100 p-4 rounded-lg flex-grow flex-shrink"
       >
-        Right Content
+        {
+          presentation && <GenerateNarration presentation={presentation} />
+        }
       </div>
     </div>
   );

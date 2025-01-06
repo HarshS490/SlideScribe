@@ -1,8 +1,11 @@
 import axios from "axios";
 import JSZip from "jszip";
 import { parseStringPromise } from "xml2js";
-import { SlideContent, SlideNode } from "../types/pptxTypse";
+import { Slide, SlideContent, SlideNode, TextItem } from "../types/pptxTypse";
 import * as pdfjsLib from "pdfjs-dist";
+import { FileType } from "../types/fileTypes";
+import { getFileType } from "../helper/getFileType";
+
 
 export const getTextFromPPTX = async (url: string) => {
   try {
@@ -24,11 +27,11 @@ export const getTextFromPPTX = async (url: string) => {
 
     if (slidePaths.length === 0) {
       console.log("No slides found in the PPTX file.");
-      return;
+      return null;
     }
 
     // Extract and parse text content from each slide
-    const slidesContent: Record<string, string> = {};
+    const slidesContent: Slide[] = [];
     for (const slidePath of slidePaths) {
       const slideXml = await zip.files[slidePath].async("string");
       const slideData: SlideContent = await parseStringPromise(slideXml);
@@ -51,7 +54,10 @@ export const getTextFromPPTX = async (url: string) => {
 
       const slideNumber = slidePath.match(/slide(\d+)\.xml/)?.[1];
       if (slideNumber) {
-        slidesContent[slideNumber] = texts.join(" ");
+        slidesContent.push({
+          slide: parseInt(slideNumber),
+          text: texts.join(""),
+        });
       }
     }
 
@@ -59,19 +65,11 @@ export const getTextFromPPTX = async (url: string) => {
     return slidesContent;
   } catch (error) {
     console.error("Error parsing the ppt file ", error);
+    return null;
   }
 };
 
-type TextItem = {
-  str: string;
-  transform: number[];
-  width: number;
-  height: number;
-  dir: string;
-  fontName: string;
-};
-
-export const getTextFromPDF = async (url: string) => {
+export const getTextFromPDF = async (url: string): Promise<Slide[] | null> => {
   try {
     const response = await axios.get(url, { responseType: "arraybuffer" });
     const pdfBuffer = Buffer.from(response.data);
@@ -79,7 +77,7 @@ export const getTextFromPDF = async (url: string) => {
     // Load the PDF document
     const pdf = await pdfjsLib.getDocument({ data: pdfBuffer }).promise;
 
-    const slidesContent: Record<string, string> = {};
+    const slidesContent: Slide[] = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
@@ -87,18 +85,25 @@ export const getTextFromPDF = async (url: string) => {
       // Extract and concatenate text content
       const texts: string[] = textContent.items
         .map((item) => {
-          const str = (item as TextItem).str; // Explicitly cast to TextItem
-          return str || ""; // Provide fallback
+          const str = (item as TextItem).str;
+          return str || "";
         })
-        .filter((text): text is string => Boolean(text)); // Type predicate
+        .filter((text): text is string => Boolean(text));
 
-      // Add the page number as the key and extracted text as the value
-      slidesContent[i.toString()] = texts.join(" ");
+      slidesContent.push({
+        slide: i,
+        text: texts.join(" "),
+      });
     }
 
-    // Log the extracted content as JSON
-    console.log(JSON.stringify(slidesContent, null, 2));
+    return slidesContent;
   } catch (error) {
     console.error("Error extracting text from PDF", error);
+    return null;
   }
+};
+
+export const getTextExtractor = (type: string) => {
+  const fileType: FileType = getFileType(type);
+  return fileType == "pdf" ? getTextFromPDF : getTextFromPPTX;
 };

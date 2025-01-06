@@ -20,4 +20,18 @@ interface SlideContent {
   };
 }
 
-export type{SlideContent, SlideNode, SlideTree};
+type TextItem = {
+  str: string;
+  transform: number[];
+  width: number;
+  height: number;
+  dir: string;
+  fontName: string;
+};
+
+type Slide ={
+  slide:number,
+  text:string, 
+} 
+
+export type{SlideContent, SlideNode, SlideTree, TextItem, Slide};

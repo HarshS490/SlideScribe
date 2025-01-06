@@ -1,13 +1,14 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { MinusSquare, PlusSquareIcon } from "lucide-react";
 import { useState, useRef } from "react";
-import { pdfjs, Document, Page } from "react-pdf";
+import { pdfjs,Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import DocumentLoader from "./DocumentLoader";
-import DocumentLoadError from "./DocumentLoadError";
+import DocumentLoader from "../DocumentLoader";
+import DocumentLoadError from "../DocumentLoadError";
+// import { setUpPdfWorker } from "@/utils/pdfUtils";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -83,6 +84,10 @@ export default function PdfViewer({ url }: Props) {
       }
     });
   };
+
+  // useEffect(()=>{
+  //   setUpPdfWorker();
+  // },[]);
 
   return (
     <>
