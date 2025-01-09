@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Presentation } from "@prisma/client";
 import { LoaderCircleIcon } from "lucide-react";
+import toast from "react-hot-toast";
 import axios from "axios";
+
 
 type Props = {
   presentation: Presentation;
@@ -12,7 +14,7 @@ function GenerateNarration({ presentation }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [narrations, setNarrations] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-
+  const [response,setResponse] = useState<string | null>(null);
   const handleCancel = () => {
     setIsGenerating(false);
   };
@@ -20,18 +22,44 @@ function GenerateNarration({ presentation }: Props) {
   const handleClick = async () => {
     setIsGenerating(true);
     setNarrations([]);
+    
     try {
-      const response = await axios.post("api/narration", {
-        url: presentation.link,
+      const dataToSend = {
+        url:presentation.link,
+        type: presentation.type,
+      };
+      console.log(dataToSend);
+
+      const res = await fetch("/api/narration",{
+        method:"POST",
+        body:JSON.stringify(dataToSend),
       });
-      console.log(response);
+      
+      if(!res || !res.ok || !res.body){
+        toast.error("Can't generate Narration");
+        console.log(res.body);
+      }
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+      while(true){
+        const {value,done} = await reader?.read();
+        if(done) break;
+
+        buffer += decoder.decode(value,{stream:true});
+        setResponse(buffer);
+      }
+
     } catch (error) {
-      console.log("Error while generating narration ", error);
-      setError("Error while generating narration");
-    } finally {
+      console.log(error);
+      toast.error("Couldn't generate the narrations");
+    }
+    finally{
       setIsGenerating(false);
     }
   };
+
 
   return (
     <div className="flex-col items-center justify-center space-y-4">
@@ -47,17 +75,12 @@ function GenerateNarration({ presentation }: Props) {
             Cancel
           </Button>
         )}
+        <Button onClick={()=> setResponse("")}>Clear</Button>
       </div>
 
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="space-y-2">
-        {narrations.map((narration, index) => (
-          <p key={index} className="p-2 bg-gray-50 rounded">
-            {narration}
-          </p>
-        ))}
-      </div>
+      {response}
 
       {isGenerating && (
         <div className="flex justify-center">
