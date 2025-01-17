@@ -68,7 +68,7 @@ function PresentationNarration({ presentation }: Props) {
 
       <div
         style={{ width: `${columnWidths[1]}px`, minWidth: `${MIN_WIDTH}px` }}
-        className="bg-gray-100 p-4 rounded-lg flex-grow flex-shrink"
+        className="bg-gray-100 p-4 rounded-lg flex-grow flex-shrink "
       >
         {
           presentation && <GenerateNarration presentation={presentation} />

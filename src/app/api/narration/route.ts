@@ -1,43 +1,9 @@
 import { getCurrentUser } from "@/app/actions/getCurrentUser";
-import { extractText, getTextFromPPTX } from "@/app/actions/getTextFromPPT";
 import { NextRequest, NextResponse } from "next/server";
-import { createDataStreamResponse, generateText, streamText } from "ai";
-import { Slide } from "@/app/types/pptxTypse";
-import { defaultStyle, NarrationStyle } from "@/app/types/narration.types";
+import { streamText } from "ai";
+import { defaultStyle } from "@/app/types/narration.types";
 import { model } from "@/providers/genAi";
-import { getFileType } from "@/app/helper/getFileType";
-import { FileType } from "@/app/types/fileTypes";
 import axios from "axios";
-
-function splitIntoBatches(slides: Slide[], batchSize: number) {
-  return Array.from({ length: Math.ceil(slides.length / batchSize) }, (_, i) =>
-    slides.slice(i * batchSize, (i + 1) * batchSize)
-  );
-}
-
-function createPrompt(batch: Slide[], style: Partial<NarrationStyle> = {}) {
-  const narrationStyle = { ...defaultStyle, ...style };
-
-  const styleGuide = `
-    Narration Requirements:
-    -Audience : ${narrationStyle.audienceType}
-    -Length: ${narrationStyle.duration}
-    -Tone: ${narrationStyle.toneStyle}
-    -Language: ${narrationStyle.language}
-    -Grammar Level: ${narrationStyle.grammarLevel}
-    -Flow : ${narrationStyle.presentationFlow} 
-
-    Generate Narrations for each slide with the above requirements:
-  `;
-
-  const batchContent = batch
-    .map((slide) => {
-      return `Slide ${slide.slide}: Content : ${slide.text}`;
-    })
-    .join("<|>");
-
-  return styleGuide + batchContent;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -58,10 +24,12 @@ export async function POST(req: NextRequest) {
     });
 
     const fileBuffer = Buffer.from(response.data);
-    
+
     const narrationStyle = defaultStyle;
     const result = streamText({
       model: model,
+      maxSteps: 2,
+      experimental_continueSteps: true,
       messages: [
         {
           role: "user",
@@ -76,8 +44,11 @@ export async function POST(req: NextRequest) {
               -Language: ${narrationStyle.language}
               -Grammar Level: ${narrationStyle.grammarLevel}
               -Flow : ${narrationStyle.presentationFlow} 
-          
-              Generate Narrations for each slide with the above requirements, separate the content of each slide by <|>:
+              - Include an Introductory slide from the POV of user 
+              - Separate the slide No. title from the slide narration by new line.
+              - Use Markdown for styling and emphasis.
+              - Give detailed description in narration if possible give examples separate them from remaining narration by newline and hight light them.
+              Generate Narrations for each slide with the above requirements, put <|> at starting and ending of each slide:
             `,
             },
             {
@@ -90,12 +61,11 @@ export async function POST(req: NextRequest) {
       ],
     });
     return result.toTextStreamResponse();
-    
   } catch (error) {
     console.log(error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
-    );
+  );
   }
 }

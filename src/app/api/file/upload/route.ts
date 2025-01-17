@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/app/actions/getCurrentUser";
-import { validTypes } from "@/app/types/fileTypes";
+import { getFileType } from "@/app/helper/getFileType";
+
 import {
   deleteFromCloudinary,
   uploadFileCloudinary,
@@ -38,16 +39,17 @@ export async function POST(req: NextRequest) {
     }
 
     // file type validation
-    const mimeType = file.type;
-    if (!validTypes.includes(mimeType)) {
+    const fileType = getFileType(file.type);
+    if (fileType!=="pdf" && fileType!=="pptx" ) {
       return NextResponse.json(
         { error: "Invalid file type", success: false },
         { status: 400 }
       );
     }
-
+    const buffer = await file.arrayBuffer();
+    
     // upload the image and file to cloudinary
-    const response = await uploadFileCloudinary(file);
+    const response = await uploadFileCloudinary({file});
     if (!response) {
       return NextResponse.json(
         { error: "Error uploading file to cloudinary", sucess: false },

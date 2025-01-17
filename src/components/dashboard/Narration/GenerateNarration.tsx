@@ -1,94 +1,176 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react";
 import { Presentation } from "@prisma/client";
-import { LoaderCircleIcon } from "lucide-react";
+import { LoaderCircleIcon, XCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 import toast from "react-hot-toast";
-import axios from "axios";
-
+import Markdown from "react-markdown";
+import { NarrationForm } from "./NarrationForm";
+import { NarrationStyle } from "@/app/types/narration.types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 
 type Props = {
   presentation: Presentation;
 };
 
-function GenerateNarration({ presentation }: Props) {
+const GenerateNarration = ({ presentation }: Props) => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [narrations, setNarrations] = useState<string[]>([]);
+  const [rawResponse, setRawResponse] = useState<string>("");
+  const [slideNarrations, setSlideNarrations] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [response,setResponse] = useState<string | null>(null);
-  const handleCancel = () => {
-    setIsGenerating(false);
+
+  useEffect(() => {
+    if (rawResponse) {
+      const narrationsArray = rawResponse
+        .split("<|>")
+        .map((text) => text.trim())
+        .filter((text) => text.length > 0);
+      setSlideNarrations(narrationsArray);
+    }
+  }, [rawResponse]);
+
+  const handleClear = () => {
+    setRawResponse("");
+    setSlideNarrations([]);
+    setError(null);
   };
 
   const handleClick = async () => {
     setIsGenerating(true);
-    setNarrations([]);
-    
+    handleClear();
+
     try {
       const dataToSend = {
-        url:presentation.link,
+        url: presentation.link,
         type: presentation.type,
       };
-      console.log(dataToSend);
 
-      const res = await fetch("/api/narration",{
-        method:"POST",
-        body:JSON.stringify(dataToSend),
+      const res = await fetch("/api/narration", {
+        method: "POST",
+        body: JSON.stringify(dataToSend),
       });
-      
-      if(!res || !res.ok || !res.body){
-        toast.error("Can't generate Narration");
-        console.log(res.body);
+
+      if (!res || !res.ok || !res.body) {
+        throw new Error("Failed to generate narration");
       }
 
-      const reader = res.body?.getReader();
+      const reader = res.body.getReader();
       const decoder = new TextDecoder("utf-8");
-      let buffer = "";
-      while(true){
-        const {value,done} = await reader?.read();
-        if(done) break;
 
-        buffer += decoder.decode(value,{stream:true});
-        setResponse(buffer);
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        setRawResponse((prev) => prev + chunk);
       }
-
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      setError("Couldn't generate the narrations");
       toast.error("Couldn't generate the narrations");
-    }
-    finally{
+    } finally {
       setIsGenerating(false);
     }
   };
 
+  const handleSubmit = async (data: NarrationStyle) => {
+    setIsGenerating(true);
+    try {
+      const dataToSend = {
+        url: presentation.link,
+        type: presentation.type,
+        narrationStyle: data,
+      };
+
+      const res = await fetch("/api/narration/", {
+        method: "POST",
+        body: JSON.stringify(dataToSend),
+      });
+      
+      if(!res || !res.ok || !res.body){
+        throw new Error("Error generating narrations!!");
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      while(true){
+        const { value, done } = await reader.read();
+        if(done) break;
+
+        const chunk = decoder.decode(value,{stream:true});
+        setRawResponse((prev)=>prev+chunk); 
+      }
+      
+    } catch (error) {
+      console.error(error);
+      setError("Couldn't generate narrations");
+      toast.error("Error generating narrations");
+    }
+    finally{
+      setIsGenerating(false);
+    }
+
+  };
 
   return (
-    <div className="flex-col items-center justify-center space-y-4">
-      <div className="flex gap-2">
-        <Button
-          onClick={handleClick}
-          disabled={isGenerating || !presentation?.link}
-        >
-          {isGenerating ? "Generating..." : "Generate Narrations"}
-        </Button>
-        {isGenerating && (
-          <Button onClick={handleCancel} variant="outline">
-            Cancel
-          </Button>
-        )}
-        <Button onClick={()=> setResponse("")}>Clear</Button>
-      </div>
+    <>
+      <div className="relative  bg-gray-100 flex flex-col space-y-6 w-full max-w-4xl mx-auto h-[550px]">
+        <Tabs defaultValue="prompt" className="w-full">
+          <TabsList className="w-full mb-4 grid grid-cols-2 rounded-lg bg-gray-200 backdrop-blur-sm p-2">
+            <TabsTrigger
+              value="prompt"
+              className="rounded-md transition-all duration-300 data-[state=active]:bg-white p-2"
+            >
+              Prompt
+            </TabsTrigger>
+            <TabsTrigger
+              value="narrations"
+              className="rounded-md transition-all duration-300 data-[state=active]:bg-white p-2"
+            >
+              Narrations
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="prompt">
+            <NarrationForm
+              isGenerating
+              onSubmit={(data: NarrationStyle) => {
+                handleClick();
+              }}
+            />
+          </TabsContent>
+          <TabsContent value="narrations">
+            {slideNarrations.length > 0 && (
+              <div className="space-y-4">
+                {slideNarrations.map((narration, index) => (
+                  <Card key={index} className="bg-white shadow-sm p-2">
+                    <CardContent className="prose max-w-none">
+                      <Markdown>{narration}</Markdown>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
 
-      {error && <p className="text-red-500">{error}</p>}
+        <div className="bg-inherit  overflow-y-auto h-full rounded-lg">
+          {error && (
+            <Alert variant="destructive">
+              <XCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-      {response}
-
-      {isGenerating && (
-        <div className="flex justify-center">
-          <LoaderCircleIcon className="animate-spin" />
+          {isGenerating && !rawResponse && (
+            <div className="flex justify-center py-8">
+              <LoaderCircleIcon className="h-8 w-8 animate-spin text-gray-400" />
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
-}
+};
 
 export default GenerateNarration;

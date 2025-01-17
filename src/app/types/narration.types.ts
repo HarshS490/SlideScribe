@@ -23,6 +23,7 @@ export const NarrationStyleSchema = z.object({
     "interactive",
     "analytical",
   ]),
+  prompt:z.string(),
 });
 
 export const defaultStyle: NarrationStyle = {
@@ -32,5 +33,6 @@ export const defaultStyle: NarrationStyle = {
   grammarLevel: "intermediate",
   language: "English",
   presentationFlow: "structured",
+  prompt:""
 };
 export type NarrationStyle = z.infer<typeof NarrationStyleSchema>;

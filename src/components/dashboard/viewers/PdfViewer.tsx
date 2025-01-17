@@ -25,15 +25,19 @@ export default function PdfViewer({ url }: Props) {
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const scrollToPage = (page:number)=>{
+    if(pageRefs.current[page-1] && containerRef.current){
+      pageRefs.current[page-1]?.scrollIntoView({
+        behavior:"smooth",
+        block:"start",
+      });
+    }
+  }
+
   const handleNextPage = () => {
     setCurrentPage((prev) => {
       const nextPage = Math.min(prev + 1, numPages);
-      if (pageRefs.current[nextPage - 1] && containerRef.current) {
-        pageRefs.current[nextPage - 1]?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
+      scrollToPage(nextPage);
       return nextPage;
     });
   };
@@ -51,12 +55,7 @@ export default function PdfViewer({ url }: Props) {
   const handlePrevPage = () => {
     setCurrentPage((prev) => {
       const prevPage = Math.max(prev - 1, 1);
-      if (pageRefs.current[prevPage - 1] && containerRef.current) {
-        pageRefs.current[prevPage - 1]?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
+      scrollToPage(prevPage);
       return prevPage;
     });
   };
@@ -85,9 +84,7 @@ export default function PdfViewer({ url }: Props) {
     });
   };
 
-  // useEffect(()=>{
-  //   setUpPdfWorker();
-  // },[]);
+ 
 
   return (
     <>
@@ -146,6 +143,7 @@ export default function PdfViewer({ url }: Props) {
                 value={currentPage}
                 onChange={(e)=>{
                   const val:number = parseInt(e.target.value,10);
+                  scrollToPage(val);
                   setCurrentPage(val);
                 }}
                 className="w-7 p-0 inline outline-gray-50 h-7 bg-gray-100 "
