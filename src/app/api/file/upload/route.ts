@@ -46,9 +46,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const buffer = await file.arrayBuffer();
-    
-    // upload the image and file to cloudinary
     const response = await uploadFileCloudinary({file});
     if (!response) {
       return NextResponse.json(
@@ -73,7 +70,7 @@ export async function POST(req: NextRequest) {
           link: secure_url,
           public_id: public_id,
           title: title,
-          type: mimeType,
+          type: file.type,
           name:name,
           user: {
             connect: {
