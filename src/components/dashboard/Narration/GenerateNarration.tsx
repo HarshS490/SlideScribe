@@ -1,13 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Presentation } from "@prisma/client";
-import { LoaderCircleIcon, XCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent } from "@/components/ui/card";
-import toast from "react-hot-toast";
-import Markdown from "react-markdown";
+import { LoaderCircleIcon } from "lucide-react";
 import { NarrationForm } from "./NarrationForm";
-import { NarrationStyle } from "@/app/types/narration.types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
+import Narrations from "./Narrations";
 
 type Props = {
   presentation: Presentation;
@@ -17,7 +13,9 @@ const GenerateNarration = ({ presentation }: Props) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [rawResponse, setRawResponse] = useState<string>("");
   const [slideNarrations, setSlideNarrations] = useState<string[]>([]);
+  const [tab, setTab] = useState<string>("prompt");
   const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (rawResponse) {
@@ -29,139 +27,64 @@ const GenerateNarration = ({ presentation }: Props) => {
     }
   }, [rawResponse]);
 
-  const handleClear = () => {
-    setRawResponse("");
+  const triggerSubmit = () => {
+    if (formRef.current) {
+      formRef.current.submit();
+    }
+  };
+  
+  const handleClear=()=>{
     setSlideNarrations([]);
-    setError(null);
-  };
-
-  const handleClick = async () => {
-    setIsGenerating(true);
-    handleClear();
-
-    try {
-      const dataToSend = {
-        url: presentation.link,
-        type: presentation.type,
-      };
-
-      const res = await fetch("/api/narration", {
-        method: "POST",
-        body: JSON.stringify(dataToSend),
-      });
-
-      if (!res || !res.ok || !res.body) {
-        throw new Error("Failed to generate narration");
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        setRawResponse((prev) => prev + chunk);
-      }
-    } catch (error) {
-      console.error(error);
-      setError("Couldn't generate the narrations");
-      toast.error("Couldn't generate the narrations");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleSubmit = async (data: NarrationStyle) => {
-    setIsGenerating(true);
-    try {
-      const dataToSend = {
-        url: presentation.link,
-        type: presentation.type,
-        narrationStyle: data,
-      };
-
-      const res = await fetch("/api/narration/", {
-        method: "POST",
-        body: JSON.stringify(dataToSend),
-      });
-      
-      if(!res || !res.ok || !res.body){
-        throw new Error("Error generating narrations!!");
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-
-      while(true){
-        const { value, done } = await reader.read();
-        if(done) break;
-
-        const chunk = decoder.decode(value,{stream:true});
-        setRawResponse((prev)=>prev+chunk); 
-      }
-      
-    } catch (error) {
-      console.error(error);
-      setError("Couldn't generate narrations");
-      toast.error("Error generating narrations");
-    }
-    finally{
-      setIsGenerating(false);
-    }
-
-  };
-
+    setRawResponse("");
+  }
   return (
     <>
-      <div className="relative  bg-gray-100 flex flex-col space-y-6 w-full max-w-4xl mx-auto h-[550px]">
-        <Tabs defaultValue="prompt" className="w-full">
+      <div className="relative  bg-gray-100 flex flex-col space-y-6 w-full max-w-4xl mx-auto h-[600px]">
+        <Tabs defaultValue="prompt" value={tab} className="w-full h-full">
           <TabsList className="w-full mb-4 grid grid-cols-2 rounded-lg bg-gray-200 backdrop-blur-sm p-2">
             <TabsTrigger
               value="prompt"
-              className="rounded-md transition-all duration-300 data-[state=active]:bg-white p-2"
+              className="rounded-md transition-all duration-300 data-[state=active]:bg-white p-1"
+              onClick={() => {
+                setTab("prompt");
+              }}
             >
               Prompt
             </TabsTrigger>
             <TabsTrigger
               value="narrations"
-              className="rounded-md transition-all duration-300 data-[state=active]:bg-white p-2"
+              className="rounded-md transition-all duration-300 data-[state=active]:bg-white p-1"
+              onClick={() => {
+                setTab("narrations");
+              }}
             >
               Narrations
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="prompt">
+          <TabsContent value="prompt" className="h-[530px] w-full">
             <NarrationForm
-              isGenerating
-              onSubmit={(data: NarrationStyle) => {
-                handleClick();
-              }}
+              ref={formRef}
+              isGenerating={isGenerating}
+              setIsGenerating={setIsGenerating}
+              presentation={presentation}
+              setError={setError}
+              setRawResponse={setRawResponse}
+              changeTab={setTab}
+              handleClear={handleClear}
             />
           </TabsContent>
-          <TabsContent value="narrations">
-            {slideNarrations.length > 0 && (
-              <div className="space-y-4">
-                {slideNarrations.map((narration, index) => (
-                  <Card key={index} className="bg-white shadow-sm p-2">
-                    <CardContent className="prose max-w-none">
-                      <Markdown>{narration}</Markdown>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+          <TabsContent value="narrations" className="h-[530px] w-full">
+            <Narrations
+              setError={setError}
+              retry={triggerSubmit}
+              slideNarrations={slideNarrations}
+              error={error}
+              changeTab={setTab}
+              isGenerating={isGenerating}
+            />
           </TabsContent>
         </Tabs>
-
-        <div className="bg-inherit  overflow-y-auto h-full rounded-lg">
-          {error && (
-            <Alert variant="destructive">
-              <XCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
+        <div className="bg-inherit  overflow-y-auto h-full rounded-lg ">
           {isGenerating && !rawResponse && (
             <div className="flex justify-center py-8">
               <LoaderCircleIcon className="h-8 w-8 animate-spin text-gray-400" />

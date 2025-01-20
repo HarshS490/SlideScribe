@@ -1,11 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Loader2 } from 'lucide-react'
-import { NarrationStyle,NarrationStyleSchema } from "@/app/types/narration.types"
-import { Button } from "@/components/ui/button"
+import React, { useRef } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { AlertCircleIcon, Loader2 } from "lucide-react";
+import {
+  NarrationStyle,
+  NarrationStyleSchema,
+} from "@/app/types/narration.types";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,33 +16,52 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Presentation } from "@prisma/client";
+import toast from "react-hot-toast";
 
 interface NarrationFormProps {
-  onSubmit: (data: NarrationStyle) => void,
-  onCancel?: () => void
-  defaultValues?: Partial<NarrationStyle>
-  isRegenerating?: boolean,
-  isGenerating: boolean,
+  defaultValues?: Partial<NarrationStyle>;
+  isRegenerating?: boolean;
+  isGenerating: boolean;
+  presentation: Presentation;
+  ref: React.RefObject<HTMLFormElement>;
+  setIsGenerating: React.Dispatch<React.SetStateAction<boolean>>;
+  setRawResponse: React.Dispatch<React.SetStateAction<string>>;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  changeTab: React.Dispatch<React.SetStateAction<string>>;
+  handleClear:()=>void;
 }
 
-export function NarrationForm({ 
-  onSubmit, 
-  onCancel, 
-  defaultValues = {}, 
-  isRegenerating = false 
+export function NarrationForm({
+  defaultValues = {},
+  isRegenerating = false,
+  isGenerating,
+  ref,
+  presentation,
+  setRawResponse,
+  setIsGenerating,
+  setError,
+  changeTab,
+  handleClear,
 }: NarrationFormProps) {
-  const [isLoading, setIsLoading] = useState(false)
+  const controllerRef = useRef<AbortController | null>(null);
 
   const form = useForm<NarrationStyle>({
     resolver: zodResolver(NarrationStyleSchema),
@@ -53,33 +75,91 @@ export function NarrationForm({
       prompt: "",
       ...defaultValues,
     },
-  })
+  });
 
   const handleSubmit = async (data: NarrationStyle) => {
-    setIsLoading(true)
-    try {
-      await onSubmit(data)
-    } finally {
-      setIsLoading(false)
+    if (controllerRef.current) {
+      controllerRef.current.abort();
     }
-  }
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    
+    setIsGenerating(true);
+    handleClear();
+    changeTab("narrations");
+    
+    try {
+      const dataToSend = {
+        url: presentation.link,
+        type: presentation.type,
+        narrationStyle: data,
+      };
+      
+      const res = await fetch("/api/narration/", {
+        method: "POST",
+        body: JSON.stringify(dataToSend),
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!res || !res.ok || !res.body) {
+        throw new Error("Error generating narrations!!");
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        setRawResponse((prev) => prev + chunk);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        toast("Generation Cancelled", {
+          icon: <AlertCircleIcon className="text-pretty text-cyan-300" />,
+          id: "CANCEL_REQUEST",
+          duration: 1000,
+        });
+      } else {
+        setError("Error occured while generating narrations");
+        toast.error("Error generating narrations");
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const onCancel = () => {
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+    }
+  };
 
   return (
     <Card className="w-full">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} ref={ref}>
           <CardHeader>
-            <CardTitle>{isRegenerating ? "Edit Narration Style" : "Generate Narration"}</CardTitle>
+            <CardTitle className="text-xl tracking-normal">
+              {"Narration Style"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <FormField
                 control={form.control}
                 name="audienceType"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Audience</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select audience" />
@@ -103,7 +183,10 @@ export function NarrationForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Duration</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select duration" />
@@ -125,7 +208,10 @@ export function NarrationForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tone</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select tone" />
@@ -133,9 +219,15 @@ export function NarrationForm({
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="formal">Formal</SelectItem>
-                        <SelectItem value="conversational">Conversational</SelectItem>
-                        <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
-                        <SelectItem value="professional">Professional</SelectItem>
+                        <SelectItem value="conversational">
+                          Conversational
+                        </SelectItem>
+                        <SelectItem value="enthusiastic">
+                          Enthusiastic
+                        </SelectItem>
+                        <SelectItem value="professional">
+                          Professional
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -148,7 +240,10 @@ export function NarrationForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Grammar</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select grammar" />
@@ -156,7 +251,9 @@ export function NarrationForm({
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="simple">Simple</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="intermediate">
+                          Intermediate
+                        </SelectItem>
                         <SelectItem value="advanced">Advanced</SelectItem>
                       </SelectContent>
                     </Select>
@@ -183,7 +280,10 @@ export function NarrationForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Flow</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select flow" />
@@ -191,7 +291,9 @@ export function NarrationForm({
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="structured">Structured</SelectItem>
-                        <SelectItem value="storytelling">Storytelling</SelectItem>
+                        <SelectItem value="storytelling">
+                          Storytelling
+                        </SelectItem>
                         <SelectItem value="interactive">Interactive</SelectItem>
                         <SelectItem value="analytical">Analytical</SelectItem>
                       </SelectContent>
@@ -208,10 +310,10 @@ export function NarrationForm({
                 <FormItem className="mt-4">
                   <FormLabel>Prompt</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Enter your prompt for narration generation..." 
-                      className="min-h-[100px] resize-none" 
-                      {...field} 
+                    <Textarea
+                      placeholder="Enter your prompt for narration generation..."
+                      className="min-h-[100px] resize-none"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -220,19 +322,29 @@ export function NarrationForm({
             />
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
-            {onCancel && (
-              <Button type="button" variant="ghost" onClick={onCancel}>
+            {true && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                className="hover:bg-slate-400/50"
+              >
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button
+              type="submit"
+              disabled={isGenerating}
+              className="bg-cyan-800 hover:bg-cyan-700"
+            >
+              {isGenerating && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               {isRegenerating ? "Regenerate" : "Generate"} Narration
             </Button>
           </CardFooter>
         </form>
       </Form>
     </Card>
-  )
+  );
 }
-

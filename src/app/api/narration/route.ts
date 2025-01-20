@@ -1,13 +1,12 @@
 import { getCurrentUser } from "@/app/actions/getCurrentUser";
 import { NextRequest, NextResponse } from "next/server";
 import { streamText } from "ai";
-import { defaultStyle } from "@/app/types/narration.types";
 import { model } from "@/providers/genAi";
 import axios from "axios";
 
 export async function POST(req: NextRequest) {
   try {
-    const { url, type } = await req.json();
+    const { url, type , narrationStyle } = await req.json();
     if (!url) {
       return NextResponse.json(
         { message: "missing presentation url" },
@@ -25,7 +24,6 @@ export async function POST(req: NextRequest) {
 
     const fileBuffer = Buffer.from(response.data);
 
-    const narrationStyle = defaultStyle;
     const result = streamText({
       model: model,
       maxSteps: 2,
@@ -44,10 +42,10 @@ export async function POST(req: NextRequest) {
               -Language: ${narrationStyle.language}
               -Grammar Level: ${narrationStyle.grammarLevel}
               -Flow : ${narrationStyle.presentationFlow} 
+              -Discription:${narrationStyle.prompt}
               - Include an Introductory slide from the POV of user 
-              - Separate the slide No. title from the slide narration by new line.
-              - Use Markdown for styling and emphasis.
-              - Give detailed description in narration if possible give examples separate them from remaining narration by newline and hight light them.
+              - Mention the slide Number and seperate slide number, title from the slide narration by new line.
+              - Use MarkDown to style the Headings, titles, slide number .
               Generate Narrations for each slide with the above requirements, put <|> at starting and ending of each slide:
             `,
             },

@@ -62,6 +62,6 @@ const config: Config = {
       }
     },
   },
-  plugins: [require("tailwindcss-animate"), addDynamicIconSelectors()],
+  plugins: [require("tailwindcss-animate"), addDynamicIconSelectors(),require("@tailwindcss/typography")],
 };
 export default config;
