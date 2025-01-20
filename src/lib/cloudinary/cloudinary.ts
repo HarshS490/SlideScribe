@@ -2,13 +2,24 @@
 import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryError } from "./errors";
-import { validTypes } from "@/app/types/fileTypes";
+import { getFileType } from "@/app/helper/getFileType";
+import { z } from "zod";
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+const CloudinaryInputOptionsSchema = z.union([
+  z.object({ file: z.instanceof(File) }),
+  z.object({
+    buffer: z.instanceof(ArrayBuffer),
+    type: z.enum(["pdf", "pptx"]),
+  }),
+]);
+
+type CloudinaryInputType = z.infer<typeof CloudinaryInputOptionsSchema>;
 
 export const uploadFile = async (localFilePath: string) => {
   try {
@@ -26,19 +37,27 @@ export const uploadFile = async (localFilePath: string) => {
   }
 };
 
-export const uploadFileCloudinary = async (file: File) => {
+export const uploadFileCloudinary = async (input: CloudinaryInputType) => {
   try {
-    let format = "";
-    if(file.type===validTypes[0]){
-      format = "pdf";
+    const parsed = CloudinaryInputOptionsSchema.safeParse(input);
+    if (!parsed.success) {
+      throw new Error(
+        "Invalid Input: Provide either a file or an array buffer with type"
+      );
     }
-    else if(validTypes.includes(file.type)){
-      format = "pptx"
-    }
+    let bytes: Buffer;
+    let format: string;
+    if ("file" in input) {
+      const file = input.file;
+      format = getFileType(file.type);
 
-    if (!file) throw new CloudinaryError("File not provided");
-    const buffer = await file.arrayBuffer();
-    const bytes = Buffer.from(buffer);
+      const buffer = await file.arrayBuffer();
+      bytes = Buffer.from(buffer);
+    } else {
+      const { buffer, type } = input;
+      bytes = Buffer.from(buffer);
+      format = type;
+    }
 
     return new Promise(async (resolve, reject) => {
       cloudinary.uploader
@@ -46,14 +65,14 @@ export const uploadFileCloudinary = async (file: File) => {
           {
             resource_type: "raw",
             folder: process.env.CLOUDINARY_FOLDERNAME,
-            format:format,
+            format: format,
           },
           async (error, res) => {
             if (error) {
               reject(new CloudinaryError(error.message));
             }
 
-            console.log("asset uploaded",res);
+            console.log("asset uploaded", res);
             return resolve(res);
           }
         )

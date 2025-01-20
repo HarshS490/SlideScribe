@@ -3,3 +3,5 @@ export const validTypes = [
   "application/vnd.ms-powerpoint",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ];
+
+export type FileType = "pdf" | "pptx";
