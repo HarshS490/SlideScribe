@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export default withAuth(function middleware(req) {
   if(req.nextUrl.pathname.startsWith("/login") && req.nextauth.token!==null){
-    return NextResponse.redirect(new URL("/explore", req.url));
+    return NextResponse.redirect(new URL("/dasboard", req.url));
   }
   if((req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/users")) && req.nextauth.token === null){
     return NextResponse.redirect(new URL("/login",req.url));
