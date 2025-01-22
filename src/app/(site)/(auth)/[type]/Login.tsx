@@ -63,7 +63,7 @@ export default function Login() {
   const googleSigin = () => {
     setIsLoading(true);
     try {
-      signIn("google", { callbackUrl: "/dashboard" });
+      signIn("google");
     } catch (error) {
       console.log(error);
       toast.error("error while google sign in");
