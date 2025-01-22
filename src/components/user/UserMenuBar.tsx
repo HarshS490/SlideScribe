@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react"
 import { User, LogOut } from 'lucide-react'
@@ -22,7 +22,6 @@ interface UserMenuBarProps {
 
 export function UserMenuBar({ user, onLogout, onProfileClick }: UserMenuBarProps) {
   const [isOpen, setIsOpen] = useState(false)
-
   return (
     <div className="flex items-center justify-end ">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -39,11 +38,11 @@ export function UserMenuBar({ user, onLogout, onProfileClick }: UserMenuBarProps
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onProfileClick}>
+          <DropdownMenuItem onClick={onProfileClick} className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={onLogout}>
+          <DropdownMenuItem onClick={onLogout} className="cursor-pointer">
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>

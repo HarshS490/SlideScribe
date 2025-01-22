@@ -84,9 +84,10 @@ export default function Login() {
             <div className="flex flex-col relative">
               <label htmlFor="email">Email</label>
               <Input
-                type="text"
+                type="email"
                 disabled={isLoading}
                 placeholder="Email"
+                autoComplete="username"
                 className={cn({
                   "border-red-500  focus:outline-none focus:ring-2 focus:ring-red-500":
                     errors.email,
@@ -104,6 +105,7 @@ export default function Login() {
                 type="password"
                 disabled={isLoading}
                 placeholder="Password"
+                autoComplete="current-password"
                 className={cn({
                   "border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500":
                     errors.password,
