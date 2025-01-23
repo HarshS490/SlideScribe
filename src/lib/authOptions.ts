@@ -59,7 +59,7 @@ export const authOptions: AuthOptions = {
     },
     async session({token,session}){
       if(session.user){
-        // @ts-expect-error
+        // @ts-expect-error adding user id to session
         session.user.id = token.userId;
       }
       return session;
