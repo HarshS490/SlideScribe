@@ -47,23 +47,36 @@ export default function Login() {
       const response = await signIn("credentials", {
         ...data,
         redirect: false,
+        callbackUrl:"/dashboard"
       });
       console.log(response);
       if (response?.error) {
+        throw new Error("couldn't login");
       }
       if (response?.ok && !response.error) {
+        router.push(response.url || "/dashboard");
       }
     } catch (error) {
+      if(error instanceof Error){
+        toast.error(error.message);
+      }
       console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const googleSigin = () => {
+  const googleSigin = async () => {
     setIsLoading(true);
     try {
-      signIn("google");
+      const response = await signIn("google",{redirect:true,callbackUrl:"/dashboard"});
+      console.log(response);
+      if(response?.error){
+        throw new Error("couldn't authenticate");
+      }
+      if(response?.ok && !response.error){
+        router.push(response.url || "/dashboard");
+      }
     } catch (error) {
       console.log(error);
       toast.error("error while google sign in");

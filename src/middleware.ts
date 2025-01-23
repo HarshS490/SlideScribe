@@ -8,7 +8,7 @@ export default withAuth(function middleware(req) {
   if((req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/users")) && req.nextauth.token === null){
     return NextResponse.redirect(new URL("/login",req.url));
   }
-  
+  NextResponse.next();
 }, {
   pages: {
     signIn: "/login",
@@ -21,5 +21,5 @@ export default withAuth(function middleware(req) {
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*","/login","/users/:path"],
 };
