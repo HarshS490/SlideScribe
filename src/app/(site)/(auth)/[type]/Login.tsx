@@ -49,9 +49,8 @@ export default function Login() {
         redirect: false,
         callbackUrl:"/dashboard"
       });
-      console.log(response);
       if (response?.error) {
-        throw new Error("couldn't login");
+        throw new Error("couldn't login",{cause:response.error});
       }
       if (response?.ok && !response.error) {
         router.push(response.url || "/dashboard");
@@ -60,7 +59,9 @@ export default function Login() {
       if(error instanceof Error){
         toast.error(error.message);
       }
-      console.log(error);
+      else{
+        toast.error("Cloudn't Login")
+      }
     } finally {
       setIsLoading(false);
     }
@@ -70,16 +71,19 @@ export default function Login() {
     setIsLoading(true);
     try {
       const response = await signIn("google",{redirect:true,callbackUrl:"/dashboard"});
-      console.log(response);
       if(response?.error){
-        throw new Error("couldn't authenticate");
+        throw new Error("couldn't login",{cause:response.error});
       }
       if(response?.ok && !response.error){
         router.push(response.url || "/dashboard");
       }
     } catch (error) {
-      console.log(error);
-      toast.error("error while google sign in");
+      if(error instanceof Error){
+        toast.error(error.message);
+      }
+      else{
+        toast.error("Error occured during Login");
+      }
     } finally {
       setIsLoading(false);
     }
