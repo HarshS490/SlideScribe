@@ -31,17 +31,16 @@ model Presentation {
   public_id String
   user      User     @relation("UserToPresentation", fields: [userId], references: [id])
   userId    String   @db.ObjectId
-  scripts   Script[]
+  script    Script?  @relation("presentationToScript")
   updatedAt DateTime @updatedAt()
   createdAt DateTime @default(now())
 }
 
 model Script {
   id        String       @id @default(auto()) @map("_id") @db.ObjectId
-  slideNo   String
   content   String
-  source    Presentation @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-  sourceId  String       @db.ObjectId
+  source    Presentation @relation("presentationToScript", fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceId  String       @unique @db.ObjectId
   updatedAt DateTime     @updatedAt()
   createdAt DateTime     @default(now())
 }

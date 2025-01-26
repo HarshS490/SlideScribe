@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+"use client";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Presentation } from "@prisma/client";
-import { LoaderCircleIcon } from "lucide-react";
 import { NarrationForm } from "./NarrationForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import Narrations from "./Narrations";
+import toast from "react-hot-toast";
 
 type Props = {
   presentation: Presentation;
 };
 
 const GenerateNarration = ({ presentation }: Props) => {
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [isGenerationComplete, setIsGenerationComplete] =
+    useState<boolean>(false);
   const [rawResponse, setRawResponse] = useState<string>("");
   const [slideNarrations, setSlideNarrations] = useState<string[]>([]);
   const [tab, setTab] = useState<string>("prompt");
@@ -18,7 +21,7 @@ const GenerateNarration = ({ presentation }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (rawResponse) {
+    if (rawResponse.trim().length > 0) {
       const narrationsArray = rawResponse
         .split("<|>")
         .map((text) => text.trim())
@@ -27,16 +30,66 @@ const GenerateNarration = ({ presentation }: Props) => {
     }
   }, [rawResponse]);
 
+  const saveToDb = useCallback(async () => {
+    try {
+      const response = await fetch("/api/narration/save", {
+        method: "POST",
+        body: JSON.stringify({
+          pid: presentation.id,
+          rawNarration: rawResponse,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        toast.success("Saved");
+      } else {
+        throw new Error("failed to save");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Some unknown error ocurred");
+      }
+    }
+  }, [presentation, rawResponse]);
+
+  useEffect(() => {
+    if (isGenerationComplete) {
+      saveToDb();
+    }
+  }, [isGenerationComplete, saveToDb]);
+
+  useEffect(() => {
+    const fetchNarration = async () => {
+      const response = await fetch("/api/narration", {
+        method: "POST",
+        body: JSON.stringify({ pid: presentation.id }),
+        headers: { "Content-Type": "application/json" },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const narration = data.narration;
+        setRawResponse(narration.content);
+      }
+    };
+
+    fetchNarration();
+  }, [presentation]);
+
   const triggerSubmit = () => {
     if (formRef.current) {
       formRef.current.submit();
     }
   };
-  
-  const handleClear=()=>{
+
+  const handleClear = () => {
     setSlideNarrations([]);
     setRawResponse("");
-  }
+  };
   return (
     <>
       <div className="relative  bg-gray-100 flex flex-col space-y-6 w-full max-w-4xl mx-auto h-[600px]">
@@ -64,6 +117,8 @@ const GenerateNarration = ({ presentation }: Props) => {
           <TabsContent value="prompt" className="h-[530px] w-full">
             <NarrationForm
               ref={formRef}
+              isGenerationComplete={isGenerationComplete}
+              setIsGenerationComplete={setIsGenerationComplete}
               isGenerating={isGenerating}
               setIsGenerating={setIsGenerating}
               presentation={presentation}
@@ -84,13 +139,6 @@ const GenerateNarration = ({ presentation }: Props) => {
             />
           </TabsContent>
         </Tabs>
-        <div className="bg-inherit  overflow-y-auto h-full rounded-lg ">
-          {isGenerating && !rawResponse && (
-            <div className="flex justify-center py-8">
-              <LoaderCircleIcon className="h-8 w-8 animate-spin text-gray-400" />
-            </div>
-          )}
-        </div>
       </div>
     </>
   );

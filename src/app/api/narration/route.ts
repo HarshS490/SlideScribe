@@ -1,69 +1,34 @@
 import { getCurrentUser } from "@/app/actions/getCurrentUser";
+import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { streamText } from "ai";
-import { model } from "@/providers/genAi";
-import axios from "axios";
 
-export async function POST(req: NextRequest) {
+
+export async function POST(req:NextRequest){
   try {
-    const { url, type , narrationStyle } = await req.json();
-    if (!url) {
-      return NextResponse.json(
-        { message: "missing presentation url" },
-        { status: 400 }
-      );
+    const user  = await getCurrentUser();
+    if(!user || !user.email || !user.email){
+      return NextResponse.json({error:"Unauthorized"},{status:401});
+    }
+    const {pid} = await req.json();
+    if(!pid){
+      return NextResponse.json({error:"Missing PID"},{status:400});
     }
 
-    const currentUser = await getCurrentUser();
-    if (!currentUser || !currentUser.email || !currentUser.name) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    const narration = await prisma.presentation.findUnique({
+      where:{
+        id:pid,
+      },
+      select:{
+        script:true,
+      }
+    });
+
+    if(!narration){
+      return NextResponse.json({message:"No narration Generated"},{status:200});
     }
-    const response = await axios.get<ArrayBuffer>(url, {
-      responseType: "arraybuffer",
-    });
-
-    const fileBuffer = Buffer.from(response.data);
-
-    const result = streamText({
-      model: model,
-      maxSteps: 2,
-      experimental_continueSteps: true,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `
-              Narration Requirements:
-              -Audience : ${narrationStyle.audienceType}
-              -Length: ${narrationStyle.duration}
-              -Tone: ${narrationStyle.toneStyle}
-              -Language: ${narrationStyle.language}
-              -Grammar Level: ${narrationStyle.grammarLevel}
-              -Flow : ${narrationStyle.presentationFlow} 
-              -Discription:${narrationStyle.prompt}
-              - Include an Introductory slide from the POV of user 
-              - Mention the slide Number and seperate slide number, title from the slide narration by new line.
-              - Use MarkDown to style the Headings, titles, slide number .
-              Generate Narrations for each slide with the above requirements, put <|> at starting and ending of each slide:
-            `,
-            },
-            {
-              type: "file",
-              data: fileBuffer,
-              mimeType: type,
-            },
-          ],
-        },
-      ],
-    });
-    return result.toTextStreamResponse();
+    return NextResponse.json({narration:narration.script},{status:200});    
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-  );
+    console.error(error);
+    return NextResponse.json({error:"Internal Server Error"},{status:500});
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { ForwardedRef, forwardRef, useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { AlertCircleIcon, Loader2 } from "lucide-react";
@@ -40,27 +40,28 @@ interface NarrationFormProps {
   defaultValues?: Partial<NarrationStyle>;
   isRegenerating?: boolean;
   isGenerating: boolean;
+  isGenerationComplete:boolean;
   presentation: Presentation;
-  ref: React.RefObject<HTMLFormElement>;
+  setIsGenerationComplete: React.Dispatch<React.SetStateAction<boolean>>;
   setIsGenerating: React.Dispatch<React.SetStateAction<boolean>>;
   setRawResponse: React.Dispatch<React.SetStateAction<string>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   changeTab: React.Dispatch<React.SetStateAction<string>>;
-  handleClear:()=>void;
+  handleClear: () => void;
 }
 
-export function NarrationForm({
+export const NarrationForm = forwardRef(function NarrationForm({
   defaultValues = {},
   isRegenerating = false,
   isGenerating,
-  ref,
   presentation,
   setRawResponse,
   setIsGenerating,
+  setIsGenerationComplete,
   setError,
   changeTab,
   handleClear,
-}: NarrationFormProps) {
+}:NarrationFormProps,ref:ForwardedRef<HTMLFormElement>) {
   const controllerRef = useRef<AbortController | null>(null);
 
   const form = useForm<NarrationStyle>({
@@ -83,19 +84,20 @@ export function NarrationForm({
     }
     const controller = new AbortController();
     controllerRef.current = controller;
-    
+
     setIsGenerating(true);
+    setIsGenerationComplete(false);
     handleClear();
     changeTab("narrations");
-    
+
     try {
       const dataToSend = {
         url: presentation.link,
         type: presentation.type,
         narrationStyle: data,
       };
-      
-      const res = await fetch("/api/narration/", {
+
+      const res = await fetch("/api/narration/create", {
         method: "POST",
         body: JSON.stringify(dataToSend),
         signal: controller.signal,
@@ -103,7 +105,7 @@ export function NarrationForm({
           "Content-Type": "application/json",
         },
       });
-      
+
       if (!res || !res.ok || !res.body) {
         throw new Error("Error generating narrations!!");
       }
@@ -130,14 +132,21 @@ export function NarrationForm({
       }
     } finally {
       setIsGenerating(false);
+      setIsGenerationComplete(true);
     }
   };
 
-  const onCancel = () => {
+  const cancelReq = () => {
     if (controllerRef.current) {
       controllerRef.current.abort();
     }
   };
+
+  useEffect(()=>{
+    if(!isGenerating){
+      cancelReq();
+    } 
+  },[isGenerating]);
 
   return (
     <Card className="w-full">
@@ -326,7 +335,7 @@ export function NarrationForm({
               <Button
                 type="button"
                 variant="outline"
-                onClick={onCancel}
+                onClick={cancelReq}
                 className="hover:bg-slate-400/50"
               >
                 Cancel
@@ -347,4 +356,4 @@ export function NarrationForm({
       </Form>
     </Card>
   );
-}
+});

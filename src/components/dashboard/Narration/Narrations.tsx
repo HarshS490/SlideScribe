@@ -38,13 +38,15 @@ function Narrations({
         {(slideNarrations.length > 0 || isGenerating)? (
           <div className="h-full overflow-y-auto">
             <div className="space-y-4">
-              {slideNarrations.map((narration, index) => (
-                <Card key={index} className="bg-white shadow-sm p-2">
-                  <CardContent className="max-w-none prose">
-                    <Markdown rehypePlugins={[rehypeRaw]}>{narration}</Markdown>
-                  </CardContent>
-                </Card>
-              ))}
+              {slideNarrations.map((narration, index) => {
+                const parsedText = narration.replace("<br>","\n");
+                return( 
+                  <Card key={index} className="bg-white shadow-sm p-2">
+                    <CardContent className="max-w-none prose">
+                      <Markdown rehypePlugins={[rehypeRaw]}>{parsedText}</Markdown>
+                    </CardContent>
+                  </Card>)
+              })}
             </div>
             {isGenerating && <div className="h-full p-6 flex items-center justify-center">
               <LoaderCircleIcon className="animate-spin"/>
