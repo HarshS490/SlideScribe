@@ -24,7 +24,7 @@ export async function POST(req:NextRequest){
     });
 
     if(!narration){
-      return NextResponse.json({message:"No narration Generated"},{status:200});
+      return NextResponse.json({message:"No narration Generated",narration:null},{status:200});
     }
     return NextResponse.json({narration:narration.script},{status:200});    
   } catch (error) {

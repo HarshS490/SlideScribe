@@ -73,7 +73,9 @@ const GenerateNarration = ({ presentation }: Props) => {
       if (response.ok) {
         const data = await response.json();
         const narration = data.narration;
-        setRawResponse(narration.content);
+        if(narration){
+          setRawResponse(narration.content);
+        }
       }
     };
 
