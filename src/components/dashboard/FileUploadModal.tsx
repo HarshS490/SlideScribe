@@ -108,16 +108,16 @@ function FileUploadButton({updatePresentations}: Props) {
         variant={"default"}
         aria-label="Upload a new presentation"
         onClick={openModal}
-        className="bg-cyan-700 flex gap-2 hover:bg-cyan-600 "
+        className="relative"
       >
         <Upload className="size-4 sm:size-6" />
-        <span className="hidden sm:block">Upload Presentation</span>
+        <span className="overflow-hidden opacity-0 w-0 min-[400px]:opacity-100 min-[400px]:w-auto  transition-all ease-in-out">Upload Presentation</span>
       </Button>
       <Modal isOpen={isOpen} handleClose={handleClose}>
         <form
           onSubmit={handleSubmit(formSubmit)}
           aria-label="file-upload-form "
-          className="rounded-xl px-4 py-2 bg-white flex-col w-full min-w-60 max-w-md  sm:w-2/4 sm:max-w-md"
+          className="rounded-xl px-4 py-2 bg-background flex-col w-full min-w-60 max-w-md  sm:w-2/4 sm:max-w-md"
         >
           <div className="flex justify-between items-center gap-2">
             <h2 className="text-base sm:text-lg font-medium ">
@@ -126,7 +126,7 @@ function FileUploadButton({updatePresentations}: Props) {
             <Button
               type="button"
               variant={"ghost"}
-              className="rounded-full hover:bg-cyan-100"
+              className="rounded-full"
               size={"icon"}
               onClick={handleClose}
             >
@@ -151,14 +151,14 @@ function FileUploadButton({updatePresentations}: Props) {
                 <FormErrors message={errors.title.message} />
               )}
             </div>
-            <div className="my-3">
+            <div className="my-5">
               <label
                 htmlFor="file"
                 aria-disabled={loading}
                 className={cn(
-                  "block max-w-max font-medium text-white bg-cyan-700 p-2 rounded-lg hover:bg-cyan-800 cursor-pointer",
+                  "block max-w-max font-medium text-white bg-primary p-2 rounded-lg hover:bg-primary/85 cursor-pointer transition-colors",
                   {
-                    "bg-cyan-700/50 hover:bg-cyan-700/50 cursor-default":
+                    "bg-primary/40 hover:bg-primary/40 cursor-default text-muted-foreground":
                       loading,
                   }
                 )}
@@ -183,7 +183,7 @@ function FileUploadButton({updatePresentations}: Props) {
               />
               <span
                 id="file-input-help"
-                className="block text-xs text-gray-500"
+                className="my-1 block text-xs text-muted-foreground"
               >
                 Max File Size: 2MB {"(.pdf,.pptx)"}
                 <sup className="text-red-500">*</sup>
@@ -207,14 +207,14 @@ function FileUploadButton({updatePresentations}: Props) {
                   />
                 </div>
                 <div className="col-span-2 min-w-0 flex-shrink-1 flex-grow-0">
-                  <span className="text-sm text-gray-600 block whitespace-nowrap overflow-hidden overflow-ellipsis ">
+                  <span className="text-sm text-muted-foreground block whitespace-nowrap overflow-hidden overflow-ellipsis ">
                     {attachedFile.name}
                   </span>
                 </div>
                 <Button
                   variant={"ghost"}
                   size={"icon"}
-                  className="col-span-1 hover:bg-cyan-100 cursor-pointer text-gray-600 hover:text-gray-800 rounded-full p-1"
+                  className="col-span-1 "
                   onClick={handleFileRemove}
                   disabled={loading}
                 >
@@ -223,13 +223,12 @@ function FileUploadButton({updatePresentations}: Props) {
               </div>
             )}
 
-            <div>
+            <div className="flex justify-center my-1">
               <Button
                 variant={"default"}
                 type="submit"
                 aria-label="Submit the form"
-                className="mx-auto bg-cyan-700 flex gap-2 hover:bg-cyan-800 transition-all"
-                disabled={loading }
+                disabled={loading}
                 aria-disabled={loading}
               >
                 {!loading ? (

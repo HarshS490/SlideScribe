@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import {Toaster} from "react-hot-toast"
-import AuthContext from "./context/AuthContext";
+import { Toaster } from "react-hot-toast";
 import NextTopLoader from "nextjs-toploader";
-import "../utils/polyfils"
+import "../utils/polyfils";
+import { Provider } from "@/providers/Provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,12 +31,11 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
+        suppressHydrationWarning
       >
-        <NextTopLoader color="#11bab7"/>
-        <Toaster/>
-        <AuthContext>
-          {children}
-        </AuthContext>
+        <NextTopLoader color="#11bab7" />
+        <Toaster />
+        <Provider>{children}</Provider>
       </body>
     </html>
   );
