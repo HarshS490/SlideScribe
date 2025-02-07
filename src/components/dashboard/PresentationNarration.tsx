@@ -53,7 +53,7 @@ function PresentationNarration({ presentation }: Props) {
       >
         {/* <PdfViewer/> */}
         {presentation?.type === validTypes[0] ? (
-          <PdfViewer url={presentation ? presentation.link : ""} />
+          <PdfViewer url={presentation ? presentation.thumbnail?presentation.thumbnail:presentation.link : ""} />
         ) : (
           <PPTViewer url={presentation ? presentation.link : ""} />
         )}

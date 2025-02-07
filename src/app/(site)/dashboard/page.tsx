@@ -1,20 +1,9 @@
 "use client";
-import { PresentationDisplayType } from "@/app/types/presentation";
 import PresentationGallery from "@/components/dashboard/PresentationGallery";
-import { Presentation } from "@prisma/client";
-import React, {useState } from "react";
+import React from "react";
 
 const Page = () => {
-  const [presentations, setPresentations] = useState<
-    PresentationDisplayType[] | null
-  >(null);
-
-  const addPresentation = (newItem: Presentation) => {
-    setPresentations((prev) => {
-      if (!prev) return [newItem];
-      return [...prev, newItem];
-    });
-  };
+  
   return (
     <>
       <div className="w-full px-4 my-1">
@@ -26,11 +15,7 @@ const Page = () => {
             
           </section>
 
-          <PresentationGallery
-            presentations={presentations}
-            updatePresentations={setPresentations}
-            updatePresentationList={addPresentation}
-          />
+          <PresentationGallery/>
         </main>
       </div>
     </>

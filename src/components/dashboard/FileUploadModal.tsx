@@ -26,6 +26,9 @@ type Props = {
 
 function FileUploadButton({updatePresentations}: Props) {
   const { isOpen, openModal, closeModal } = useModal();
+  const [loading, setLoading] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<AttachedFile>(null);
+
 
   const {
     register,
@@ -41,8 +44,6 @@ function FileUploadButton({updatePresentations}: Props) {
     required: { value: true, message: "Please upload a file" },
   });
 
-  const [loading, setLoading] = useState(false);
-  const [attachedFile, setAttachedFile] = useState<AttachedFile>(null);
 
   const formSubmit = async (formdata: FileUploadSchema) => {
     setLoading(true);
@@ -87,7 +88,7 @@ function FileUploadButton({updatePresentations}: Props) {
     resetField("file");
   };
 
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const onFileChange =async (e: ChangeEvent<HTMLInputElement>) => {
     e.persist();
     const ele = e.target;
     if (ele.files && ele.files.length > 0) {
@@ -99,7 +100,8 @@ function FileUploadButton({updatePresentations}: Props) {
       }
     }
   };
-
+  
+  
   return (
     <>
       <Button
@@ -226,8 +228,8 @@ function FileUploadButton({updatePresentations}: Props) {
                 variant={"default"}
                 type="submit"
                 aria-label="Submit the form"
-                className="mx-auto bg-cyan-700 flex gap-2 hover:bg-cyan-800 "
-                disabled={loading}
+                className="mx-auto bg-cyan-700 flex gap-2 hover:bg-cyan-800 transition-all"
+                disabled={loading }
                 aria-disabled={loading}
               >
                 {!loading ? (

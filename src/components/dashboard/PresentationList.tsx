@@ -6,9 +6,12 @@ type Props = {
   presentations: PresentationDisplayType[] | null;
   query: string;
   sortBy: string;
+  deletePresentation:(id:string)=>void;
 };
 
-function PresentationList({ presentations, query, sortBy }: Props) {
+function PresentationList({ presentations, query, sortBy,deletePresentation }: Props) {
+  
+
   const sortedAndFiltered = useMemo(() => {
     const clonedPresentations = [...(presentations || [])];
 
@@ -41,6 +44,7 @@ function PresentationList({ presentations, query, sortBy }: Props) {
               presentation={presentation}
               key={presentation.id}
               highlight={query}
+              deletePresentation={deletePresentation}
             />
           );
         })}

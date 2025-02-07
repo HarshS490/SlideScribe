@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
+    
     const currentUser = await getCurrentUser();
     if (!currentUser || !currentUser.email || !currentUser.name) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
     const response = await axios.get<ArrayBuffer>(url, {
       responseType: "arraybuffer",
     });
+    console.log(url);
 
     const fileBuffer = Buffer.from(response.data);
 
