@@ -28,6 +28,7 @@ const getPresentations = async () => {
           public_id: true,
           thumbnail: true,
           updatedAt: true,
+          thumbnail_public_id:true,
         },
       });
 

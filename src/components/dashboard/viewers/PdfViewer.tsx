@@ -8,7 +8,8 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import DocumentLoader from "../DocumentLoader";
 import DocumentLoadError from "../DocumentLoadError";
-// import { setUpPdfWorker } from "@/utils/pdfUtils";
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -91,16 +92,17 @@ export default function PdfViewer({ url }: Props) {
       <div className="Example relative group flex-col items-center">
         <div
           ref={containerRef}
-          className="overflow-scroll h-[550px] rounded-md flex-col items-center"
+          className="overflow-scroll h-[550px] rounded-md flex-col items-center scroll-smooth"
           onScroll={handleScroll}
         >
           <Document file={url} onLoadSuccess={onDocumentLoadSuccess} loading={<DocumentLoader/>} error={<DocumentLoadError message="Error Loading Pdf File"/>}>
             {Array.from(new Array(numPages), (_el, index) => (
               <div
+              className="my-2 rounded-lg overflow-hidden"
                 key={`page_${index + 1}`}
                 ref={(el :HTMLDivElement | null) => {pageRefs.current[index] = el}}
               >
-                <Page scale={zoom} pageNumber={index + 1} width={maxWidth} loading={<DocumentLoader/>} className={"flex justify-center"}/>
+                <Page scale={zoom} pageNumber={index + 1} width={maxWidth} loading={<DocumentLoader/>} renderAnnotationLayer={false} renderTextLayer={false} className={"flex justify-center"}/>
               </div>
             ))}
           </Document>

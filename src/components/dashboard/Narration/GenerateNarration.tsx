@@ -59,6 +59,7 @@ const GenerateNarration = ({ presentation }: Props) => {
   useEffect(() => {
     if (isGenerationComplete) {
       saveToDb();
+      setIsGenerationComplete(false);
     }
   }, [isGenerationComplete, saveToDb]);
 

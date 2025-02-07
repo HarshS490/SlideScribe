@@ -40,7 +40,7 @@ async function page({ params }: Props) {
         </section>
         <section>
           <h1 className="text-center text-xl font-semibold text-cyan-900">
-            {presentation?presentation.title:"No file Found"}
+            {presentation?presentation.title.toUpperCase():"No file Found"}
           </h1>
           <PresentationNarration presentation={presentation}/>
         </section>

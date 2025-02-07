@@ -3,7 +3,7 @@ import { getFileType } from "@/app/helper/getFileType";
 
 import {
   deleteFromCloudinary,
-  uploadFileCloudinary,
+  uploadImageCloudinary,
 } from "@/lib/cloudinary/cloudinary";
 import { prisma } from "@/lib/prisma";
 
@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
         { status: 405 }
       );
     }
+    
 
     const currentUser = await getCurrentUser();
 
@@ -31,13 +32,14 @@ export async function POST(req: NextRequest) {
     const file = data.get("file") as File | null;
     const title = data.get("title") as string;
     const name = data.get("name") as string+ "-" + String(Date.now());
+    
     if (!file || !title) {
       return NextResponse.json(
         { error: "Missing file or title.", success: false },
         { status: 400 }
       );
     }
-
+    
     // file type validation
     const fileType = getFileType(file.type);
     if (fileType!=="pdf" && fileType!=="pptx" ) {
@@ -46,7 +48,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const response = await uploadFileCloudinary({file});
+
+    const arrayBuffer = await file.arrayBuffer();
+    const fileBuffer = Buffer.from(arrayBuffer);
+    const response = await uploadImageCloudinary(fileBuffer);
     if (!response) {
       return NextResponse.json(
         { error: "Error uploading file to cloudinary", sucess: false },
@@ -54,7 +59,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    //@ts-expect-error cloudinary api upload
+    //@ts-expect-error cloudinary api upload response
     const { secure_url, public_id } = response;
     if (!secure_url || !public_id) {
       return NextResponse.json(

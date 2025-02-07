@@ -28,7 +28,7 @@ function PresentationNarration({ presentation }: Props) {
       const newLeftWidth = initialWidths[0] + deltaX;
       const newRightWidth = initialWidths[1] - deltaX;
 
-      // Enforce minimum width for both columns
+      // Enforce minimum width for both columns 
       if (newLeftWidth >= MIN_WIDTH && newRightWidth >= MIN_WIDTH) {
         setColumnWidths([newLeftWidth, newRightWidth]);
       }
@@ -53,7 +53,7 @@ function PresentationNarration({ presentation }: Props) {
       >
         {/* <PdfViewer/> */}
         {presentation?.type === validTypes[0] ? (
-          <PdfViewer url={presentation ? presentation.link : ""} />
+          <PdfViewer url={presentation ? presentation.thumbnail?presentation.thumbnail:presentation.link : ""} />
         ) : (
           <PPTViewer url={presentation ? presentation.link : ""} />
         )}

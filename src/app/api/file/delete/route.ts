@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/app/actions/getCurrentUser";
+import { deleteFromCloudinary } from "@/lib/cloudinary/cloudinary";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -13,17 +14,19 @@ export async function DELETE(req:NextRequest){
     if(!pid){
       return NextResponse.json({message:"Missing data"},{status:400});
     }
-
+    
     const presentation = await prisma.presentation.delete({
       where:{
         id:pid,
         userId:user.id
       },
     }) ;
+    
     if(!presentation){
       return NextResponse.json({message:"No presentation found"},{status:400});
     }
-
+    const delResponse = await deleteFromCloudinary(presentation.public_id);
+    if(delResponse) console.log(delResponse);
     return NextResponse.json({presentation,message:"Successfull"},{status:200});
 
   } 

@@ -1,5 +1,4 @@
 "use server";
-import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryError } from "./errors";
 import { getFileType } from "@/app/helper/getFileType";
@@ -21,19 +20,43 @@ const CloudinaryInputOptionsSchema = z.union([
 
 type CloudinaryInputType = z.infer<typeof CloudinaryInputOptionsSchema>;
 
-export const uploadFile = async (localFilePath: string) => {
+export const uploadImageCloudinary = async (input: Buffer<ArrayBufferLike>) => {
   try {
-    if (!localFilePath) return new Error("File Path not found");
-
-    const response = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "auto",
-      folder: process.env.CLOUDINARY_FOLDERNAME,
+    if(!Buffer.isBuffer(input)){
+      throw new CloudinaryError("Input must be a valid buffer");
+    }
+    if(input.length===0){
+      throw new CloudinaryError("Buffer is Empty");
+    }
+    const buffer = Buffer.from(input);
+    return new Promise((resolve, reject) => {
+      console.log("Uploading..");
+      cloudinary.uploader
+        .upload_stream(
+          {
+            resource_type: "auto",
+            folder: process.env.CLOUDINARY_FOLDERNAME,
+          },
+          async (error, res) => {
+            if (error) {
+              reject(new CloudinaryError(error.message));
+            }
+            console.log(res);
+            console.log("Uploaded")
+            return resolve(res);
+          }
+        )
+        .end(buffer);
     });
-    return response.url;
   } catch (error) {
-    fs.unlinkSync(localFilePath);
-    console.log(error);
-    return new Error("Failed to upload file");
+    if (error instanceof CloudinaryError) {
+      throw error;
+    }
+    throw new CloudinaryError(
+      `Unexpected Error During Upload: ${
+        error instanceof Error ? error.message : "Unknown Error"
+      }`
+    );
   }
 };
 

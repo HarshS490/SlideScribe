@@ -15,23 +15,88 @@ import PresentationList from "./PresentationList";
 import { Presentation } from "@prisma/client";
 import FileUploadButton from "./FileUploadModal";
 
-type Props = {
-  presentations: PresentationDisplayType[] | null;
-  updatePresentations: React.Dispatch<
-    React.SetStateAction<PresentationDisplayType[] | null>
-  >;
-  updatePresentationList: (newItem: Presentation) => void;
-};
+function PresentationGallery() {
+  const [presentations, setPresentations] = useState<
+    PresentationDisplayType[] | null
+  >(null);
 
-function PresentationGallery({
-  presentations,
-  updatePresentations,
-  updatePresentationList,
-}: Props) {
   const scrollRef = useRef(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [SortBy, setSortBy] = useState<string>("Sort By");
   const [query, setQuery] = useState<string>("");
+
+  const appendToPresentation = (newItem: Presentation) => {
+    setPresentations((prev) => {
+      if (!prev) return [newItem];
+      return [...prev, newItem];
+    });
+  };
+
+  const deletePresentation = (id: string) => {
+    setPresentations((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return prev.filter(
+        (presentation: PresentationDisplayType) => presentation.id !== id
+      );
+    });
+  };
+
+  const queryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const inputData = e.target.value;
+    setQuery(inputData);
+  };
+
+
+  // useEffect(() => {
+  //   const missingThumbnails = presentations?.filter((p) => !p.thumbnail) || [];
+  //   if (missingThumbnails.length === 0) return;
+  
+  //   const generateThumbnails = async () => {
+  //     try {
+  //       const responses = await Promise.all(
+  //         missingThumbnails.map(async (presentation) => {
+  //           try {
+  //             const res = await fetch("/api/file/thumbnail", {
+  //               method: "POST",
+  //               headers: { "Content-Type": "application/json" },
+  //               body: JSON.stringify({
+  //                 pid: presentation.id,
+  //                 pdfUrl: presentation.link,
+  //               }),
+  //             });
+  
+  //             if (!res.ok) {
+  //               return null; // Silently fail if the request fails
+  //             }
+  
+  //             const data = await res.json();
+  //             return data?.success ? data.presentation : null;
+  //           } catch (error) {
+  //             console.log("error whiel generatign thumbnails",error);
+  //             return null; // Silently fail on error
+  //           }
+  //         })
+  //       );
+  
+  //       // Filter out null responses
+  //       const updatedPresentations = responses.filter(Boolean) as PresentationDisplayType[];
+  
+  //       // Batch update state (only for successfully updated presentations)
+  //       setPresentations(
+  //         (prev) =>
+  //           prev?.map((p) => updatedPresentations.find((upd) => upd.id === p.id) || p) || []
+  //       );
+  //     } catch (error) {
+  //       console.log(error);
+  //       // You can handle or log errors here if necessary, but for now, just silently fail
+  //     }
+  //   };
+  
+  //   generateThumbnails();
+  // }, [presentations]);
+  
 
   useEffect(() => {
     let isMounted = true;
@@ -39,7 +104,7 @@ function PresentationGallery({
       setLoading(true);
       const response = await getPresentations();
       if (isMounted) {
-        updatePresentations(response);
+        setPresentations(response);
         setLoading(false);
       }
     };
@@ -47,12 +112,7 @@ function PresentationGallery({
     return () => {
       isMounted = false;
     };
-  }, [updatePresentations, setLoading]);
-
-  const queryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const inputData = e.target.value;
-    setQuery(inputData);
-  };
+  }, [setPresentations, setLoading]);
 
   if (loading === true) {
     return <Loader />;
@@ -114,7 +174,7 @@ function PresentationGallery({
 
           {/* File Upload Button */}
           <div className="w-auto">
-            <FileUploadButton updatePresentations={updatePresentationList} />
+            <FileUploadButton updatePresentations={appendToPresentation} />
           </div>
         </div>
       </section>
@@ -128,6 +188,7 @@ function PresentationGallery({
           presentations={presentations}
           query={query}
           sortBy={SortBy}
+          deletePresentation={deletePresentation}
         />
         {presentations && <div ref={scrollRef}></div>}
       </section>
