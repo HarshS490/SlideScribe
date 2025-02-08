@@ -95,12 +95,12 @@ const GenerateNarration = ({ presentation }: Props) => {
   };
   return (
     <>
-      <div className="relative  bg-gray-100 flex flex-col space-y-6 w-full max-w-4xl mx-auto h-[600px]">
+      <div className="relative rounded-lg   flex flex-col space-y-6 w-full max-w-4xl mx-auto h-[600px]">
         <Tabs defaultValue="prompt" value={tab} className="w-full h-full">
-          <TabsList className="w-full mb-4 grid grid-cols-2 rounded-lg bg-gray-200 backdrop-blur-sm p-2">
+          <TabsList className="w-full mb-4 grid grid-cols-2 rounded-lg  p-2 bg-muted dark:bg-secondary">
             <TabsTrigger
               value="prompt"
-              className="rounded-md transition-all duration-300 data-[state=active]:bg-white p-1"
+              className="rounded-md transition-all duration-300 data-[state=active]:bg-popover p-1"
               onClick={() => {
                 setTab("prompt");
               }}
@@ -109,7 +109,7 @@ const GenerateNarration = ({ presentation }: Props) => {
             </TabsTrigger>
             <TabsTrigger
               value="narrations"
-              className="rounded-md transition-all duration-300 data-[state=active]:bg-white p-1"
+              className="rounded-md transition-all duration-300 data-[state=active]:bg-popover p-1"
               onClick={() => {
                 setTab("narrations");
               }}

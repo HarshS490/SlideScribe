@@ -15,10 +15,14 @@ async function layout({ children }: Props) {
   }:null;
   return (
     <>
-      <header className="relative mb-20">
+      <header className="mb-20 fixed top-0 z-30 w-full bg-background ">
         <Navbar user={user} />
       </header>
-      <WidthWrapper>{children}</WidthWrapper>
+      <WidthWrapper>
+        <div className="mt-24">
+        {children}
+        </div>
+      </WidthWrapper>
     </>
   );
 }

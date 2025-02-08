@@ -83,39 +83,43 @@ const PresentationCard = ({
 
   return (
     <Card
-      className="w-full h-full min-w-52 max-w-96 focus:focus-within:outline-none focus:ring-1   focus:ring-cyan-600 focus-whitin:border focus-within:border-cyan-600 cursor-pointer group/container"
+      className="w-full h-full min-w-52 max-w-96 bg-muted hover:scale-105 hover:shadow-lg dark:bg-card focus:focus-within:outline-none focus:ring ring-ring focus-whitin:ring focus-within:ring-ring  cursor-pointer group/container transition-all"
       aria-label="Presentation"
       tabIndex={0}
       onClick={handleParentClick}
     >
-      <CardContent className="h-full overflow-hidden rounded-lg flex-col items-center p-2 bg-gray-50 hover:bg-gray-100 transition-all">
-        <div className="w-full relative h-44  bg-white rounded-lg overflow-hidden ">
-          <Skeleton className={clsx(isImageLoading?"w-full h-full bg-gray-300":"hidden")} />
-            <Image
-              src={imageLink || getFileIcon(presentation.type)}
-              className={clsx(
-                isImageLoading?
-                "w-auto h-auto mx-auto object-cover group-hover/container:scale-105opacity-0 transition-all":
-                "w-auto h-auto mx-auto object-cover group-hover/container:scale-105 transition-all "
-              )
-              }
-              alt="Presentation thumbnail"
-              draggable="false"
-              fill={true}
-              onLoad={() => setIsImageLoading(false)}
-              sizes="(max-width:200px) 70vw,(max-width:1200px) 33vw"
-            />
+      <CardContent className="h-full overflow-hidden rounded-lg flex-col items-center p-2  transition-all">
+        <div className="w-full border border-border relative h-44  rounded-lg overflow-hidden ">
+          <Skeleton
+            className={clsx(
+              isImageLoading ? "w-full h-full bg-gray-300" : "hidden"
+            )}
+          />
+          <Image
+            src={imageLink || getFileIcon(presentation.type)}
+            className={clsx(
+              isImageLoading
+                ? "w-auto h-auto mx-auto object-cover group-hover/container:scale-105opacity-0 transition-all"
+                : "w-auto h-auto mx-auto object-cover group-hover/container:scale-105 transition-all "
+            )}
+            alt="Presentation thumbnail"
+            draggable="false"
+            fill={true}
+            onLoad={() => setIsImageLoading(false)}
+            sizes="(max-width:200px) 70vw,(max-width:1200px) 33vw"
+          />
           <div className="-z-20 group-hover/container:z-10 focus-within:z-10 relative w-full h-full transition-all  bg-slate-900/20 ">
             <DropdownMenu>
               <DropdownMenuTrigger
                 tabIndex={0}
-                className="absolute top-1 right-10 focus:outline-none p-1 rounded-full hover:bg-gray-200/70 group/menu focus:bg-gray-200/70"
+                className="absolute top-1 right-10 focus:outline-none p-1 rounded-full hover:bg-primary-foreground group/menu focus:bg-primary-foreground"
               >
-                <Ellipsis className="rounded-lg border stroke-2  border-cyan-800 hover:border-cyan-600 stroke-cyan-800 hover:stroke-cyan-600 group-focus/menu:stroke-cyan-600 group-focus/menu:border-cyan-600" />
+                <Ellipsis className="rounded-lg border stroke-2  border-primary hover:border-primary stroke-primary hover:stroke-primary group-focus/menu:primary group-focus/menu:border-primary" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white rounded-lg p-1 my-2">
+              <DropdownMenuContent className="bg-secondary rounded-lg p-1 my-2" tabIndex={0}>
                 <DropdownMenuItem
-                  className="text-center p-2 rounded-lg align-middle flex gap-2 items-center hover:bg-gray-200 outline-none hover:outline-none"
+                  tabIndex={0}
+                  className="text-center p-2 rounded-lg align-middle flex gap-2 items-center hover:bg-primary/25 outline-none hover:outline-none"
                   onClick={(e) => {
                     e.stopPropagation();
                     deleteHandler();
@@ -129,17 +133,17 @@ const PresentationCard = ({
             <Link
               href={`/dashboard/${presentation.id}`}
               aria-label="Open the presentation"
-              className="absolute top-1 right-1 focus:outline-none p-1 rounded-full hover:bg-gray-200/70 group/external focus:bg-gray-200/70"
+              className="absolute top-1 right-1 focus:outline-none p-1 rounded-full hover:bg-primary-foreground/70 group/external focus:bg-primary-foreground/70"
               tabIndex={0}
               ref={linkRef}
             >
-              <span className="rounded-full border border-cyan-800  block p-1 group-hover/external:border-cyan-600 group-focus/external:border-cyan-600">
-                <ExternalLink className="stroke-cyan-800 stroke-2 size-4 group-hover/external:stroke-cyan-600 group-focus/external:stroke-600 "></ExternalLink>
+              <span className="rounded-full border border-primary  block p-1 group-hover/external:border-primary group-focus/external:border-primary">
+                <ExternalLink className="stroke-primary stroke-2 size-4 group-hover/external:stroke-primary group-focus/external:stroke-600 "></ExternalLink>
               </span>
             </Link>
           </div>
         </div>
-        <h2 className="presentation-title text-lg font-medium my-2 text-slate-700 px-2 group-hover/container:text-cyan-800 group-focus/container:text-cyan-600 group-focus-within/container:text-cyan-600 ">
+        <h2 className="presentation-title text-lg font-medium my-2 px-2 text-foreground  group-hover/container:text-primary group-focus/container:text-primary group-focus-within/container:text-primary">
           {getHighlightedText(presentation.title, highlight)}
         </h2>
       </CardContent>

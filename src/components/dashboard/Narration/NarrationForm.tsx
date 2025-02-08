@@ -344,7 +344,6 @@ export const NarrationForm = forwardRef(function NarrationForm({
             <Button
               type="submit"
               disabled={isGenerating}
-              className="bg-cyan-800 hover:bg-cyan-700"
             >
               {isGenerating && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

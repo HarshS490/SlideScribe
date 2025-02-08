@@ -41,9 +41,9 @@ function Narrations({
               {slideNarrations.map((narration, index) => {
                 const parsedText = narration.replace("<br>","\n");
                 return( 
-                  <Card key={index} className="bg-white shadow-sm p-2">
-                    <CardContent className="max-w-none prose">
-                      <Markdown rehypePlugins={[rehypeRaw]}>{parsedText}</Markdown>
+                  <Card key={index} className="dark:bg-secondary shadow-sm p-2 ">
+                    <CardContent className="max-w-none prose prose-headings:text-card-foreground text-card-foreground">
+                      <Markdown rehypePlugins={[rehypeRaw]} className={"text-card-foreground"}>{parsedText}</Markdown>
                     </CardContent>
                   </Card>)
               })}
@@ -53,12 +53,12 @@ function Narrations({
             </div>}
           </div>
         ) : error ? (
-          <div className="flex flex-col justify-center bg-white rounded-lg p-6 h-full w-full">
+          <div className="flex flex-col justify-center bg-background rounded-lg p-6 h-full w-full">
             <div>
               <div className="my-6 flex justify-center">
-                <div className="my-6 p-6 relative flex items-center justify-center rounded-full bg-red-400/50">
+                <div className="my-6 p-6 relative flex items-center justify-center rounded-full bg-red-400/70 dark:bg-red-500/70">
                   <ScrollIcon className="size-20 " />
-                  <X className="ml-1 mb-1 absolute size-6 bg-red-500 rounded-full p-1 text-white " />
+                  <X className="ml-1 mb-1 absolute size-6 bg-red-500 dark:mix-blend-ligthen rounded-full p-1 text-white " />
                 </div>
               </div>
               <div className="my-6 px-5 flex flex-col items-center">
@@ -87,31 +87,31 @@ function Narrations({
           </div>
         ) : (
           
-          <div className="flex flex-col justify-center gap-2 bg-white rounded-lg p-6 h-full">
+          <div className="flex flex-col justify-center gap-2 bg-background rounded-lg p-6 h-full">
             
             <div className="my-6 flex justify-center">
-              <div className="p-6 relative items-center justify-center rounded-full bg-cyan-800/50">
+              <div className="p-6 relative items-center justify-center rounded-full bg-muted-foreground/30 dark:bg-muted-foreground">
                 <ScrollText className="size-20 text-slate-800" />
                 <MessageCircleQuestionIcon className="absolute top-1/4 right-2 size-7 text-slate-800" />
               </div>
             </div>
             <div className="my-5 px-5 flex flex-col items-center">
-              <div className="text-slate-700 font-semibold text-center">
+              <div className="text-foreground font-semibold text-center">
                 <span className="align-top text-lg font-bold">
                   No Narrations Available
                 </span>
               </div>
               <div className=" my-4">
-                <p className="text-gray-500 text-center leading-tight">
+                <p className="text-muted-foreground text-center leading-tight">
                   No narrations were generated for this presentation.
                 </p>
-                <p className="mt-4 text-slate-700 text-center font-semibold">
+                <p className="mt-4 text-foreground text-center font-semibold">
                   Would you like to Generate?
                 </p>
               </div>
               <Button
                 variant={"outline"}
-                className="border-cyan-800 hover:bg-cyan-700/70 text-slate-800 font-semibold text-lg  transition-colors"
+                className="font-semibold text-lg  transition-colors"
                 onClick={() => changeTab("prompt")}
               >
                 Generate

@@ -3,17 +3,17 @@ import getPresentations from "@/app/actions/getPresentations";
 import { PresentationDisplayType } from "@/app/types/presentation";
 import Loader from "../custom/Loader";
 import { Input } from "../ui/input";
-import { Select, SelectGroup } from "../ui/select";
-import {
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@radix-ui/react-select";
+
 import { Calendar, Search, Text } from "lucide-react";
 import PresentationList from "./PresentationList";
 import { Presentation } from "@prisma/client";
 import FileUploadButton from "./FileUploadModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 
 function PresentationGallery() {
   const [presentations, setPresentations] = useState<
@@ -47,56 +47,6 @@ function PresentationGallery() {
     const inputData = e.target.value;
     setQuery(inputData);
   };
-
-
-  // useEffect(() => {
-  //   const missingThumbnails = presentations?.filter((p) => !p.thumbnail) || [];
-  //   if (missingThumbnails.length === 0) return;
-  
-  //   const generateThumbnails = async () => {
-  //     try {
-  //       const responses = await Promise.all(
-  //         missingThumbnails.map(async (presentation) => {
-  //           try {
-  //             const res = await fetch("/api/file/thumbnail", {
-  //               method: "POST",
-  //               headers: { "Content-Type": "application/json" },
-  //               body: JSON.stringify({
-  //                 pid: presentation.id,
-  //                 pdfUrl: presentation.link,
-  //               }),
-  //             });
-  
-  //             if (!res.ok) {
-  //               return null; // Silently fail if the request fails
-  //             }
-  
-  //             const data = await res.json();
-  //             return data?.success ? data.presentation : null;
-  //           } catch (error) {
-  //             console.log("error whiel generatign thumbnails",error);
-  //             return null; // Silently fail on error
-  //           }
-  //         })
-  //       );
-  
-  //       // Filter out null responses
-  //       const updatedPresentations = responses.filter(Boolean) as PresentationDisplayType[];
-  
-  //       // Batch update state (only for successfully updated presentations)
-  //       setPresentations(
-  //         (prev) =>
-  //           prev?.map((p) => updatedPresentations.find((upd) => upd.id === p.id) || p) || []
-  //       );
-  //     } catch (error) {
-  //       console.log(error);
-  //       // You can handle or log errors here if necessary, but for now, just silently fail
-  //     }
-  //   };
-  
-  //   generateThumbnails();
-  // }, [presentations]);
-  
 
   useEffect(() => {
     let isMounted = true;
@@ -135,41 +85,43 @@ function PresentationGallery() {
         {/* Sort By Select and File Upload */}
         <div className="relative w-full sm:w-auto flex gap-4 items-center justify-center mx-auto">
           {/* Sort By Select */}
-          <div className="w-auto flex-shrink">
-            <Select onValueChange={setSortBy}>
-              <SelectTrigger className="relative text-sm sm:text-md lg:text-lg text-gray-600 font-semibold h-10 p-2 w-full sm:w-40 flex items-center bg-white border border-gray-300 rounded-md shadow-sm hover:border-gray-400 transition-all duration-200">
+          <div className="w-auto sm:w-28 flex-shrink">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="w-full relative text-sm sm:text-md lg:text-lg text-foreground font-semibold h-10 p-2  flex items-center bg-background dark:bg-secondary border border-border border-gray-300 rounded-md shadow-sm hover:border-gray-400 transition-all duration-200"
+                asChild
+              >
                 <span className="flex items-center">
                   {SortBy === "Date" ? (
                     <Calendar className="h-4" />
                   ) : (
                     <Text className="h-4" />
                   )}
-                </span>
-                <SelectValue placeholder="Sort by" className="ml-2">
+                  &nbsp;
                   {SortBy}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="relative w-40 z-30 bg-white rounded-lg shadow-lg border border-gray-200">
-                <SelectGroup>
-                  {["Date", "Title"].map((option) => (
-                    <SelectItem
-                      key={option.toLowerCase()}
-                      value={option}
-                      className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-150"
-                    >
-                      <div className="flex items-center gap-2">
-                        {option === "Date" ? (
-                          <Calendar className="h-4" />
-                        ) : (
-                          <Text className="h-4" />
-                        )}
-                        <span>{option}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+                </span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="center"
+                side="bottom"
+                className="mt-1 w-auto sm:w-28 z-30 p-1 bg-background dark:bg-secondary border border-border rounded-lg shadow-lg "
+              >
+                <DropdownMenuItem
+                  onClick={() => setSortBy("Date")}
+                  className="p-1 cursor-pointer hover:bg-primary/25 rounded-md flex items-center"
+                >
+                  <Calendar className="h-4 inline-block" />
+                  <span>Date</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSortBy("Title")}
+                  className="p-1 cursor-pointer hover:bg-primary/25 rounded-md flex items-center"
+                >
+                  <Text className="h-4 inline-block" />
+                  <span>Title</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* File Upload Button */}
