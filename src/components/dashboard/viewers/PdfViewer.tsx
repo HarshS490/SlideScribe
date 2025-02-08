@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MinusSquare, PlusSquareIcon } from "lucide-react";
 import { useState, useRef } from "react";
-import { pdfjs,Document, Page } from "react-pdf";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
+import { pdfjs, Document, Page } from "react-pdf";
+// import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+// import "react-pdf/dist/esm/Page/TextLayer.css";
 import DocumentLoader from "../DocumentLoader";
 import DocumentLoadError from "../DocumentLoadError";
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+// import 'react-pdf/dist/Page/AnnotationLayer.css';
+// import 'react-pdf/dist/Page/TextLayer.css';
+import { Card } from "@/components/ui/card";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -17,6 +18,7 @@ const maxWidth = 800;
 
 type Props = {
   url: string;
+  width: number;
 };
 
 export default function PdfViewer({ url }: Props) {
@@ -26,15 +28,14 @@ export default function PdfViewer({ url }: Props) {
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollToPage = (page:number)=>{
-    if(pageRefs.current[page-1] && containerRef.current){
-      pageRefs.current[page-1]?.scrollIntoView({
-        behavior:"smooth",
-        block:"start",
+  const scrollToPage = (page: number) => {
+    if (pageRefs.current[page - 1] && containerRef.current) {
+      pageRefs.current[page - 1]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
       });
     }
-  }
-
+  };
   const handleNextPage = () => {
     setCurrentPage((prev) => {
       const nextPage = Math.min(prev + 1, numPages);
@@ -84,35 +85,48 @@ export default function PdfViewer({ url }: Props) {
       }
     });
   };
-
- 
-
   return (
     <>
-      <div className="Example relative group flex-col items-center">
+      <div className="relative group flex-col items-center ">
         <div
           ref={containerRef}
-          className="overflow-scroll h-[550px] rounded-md flex-col items-center scroll-smooth"
+          className="overflow-scroll h-[550px] rounded-md flex-col items-stretch scroll-smooth"
           onScroll={handleScroll}
         >
-          <Document file={url} onLoadSuccess={onDocumentLoadSuccess} loading={<DocumentLoader/>} error={<DocumentLoadError message="Error Loading Pdf File"/>}>
+          <Document
+            file={url}
+            onLoadSuccess={onDocumentLoadSuccess}
+            loading={<DocumentLoader />}
+            error={<DocumentLoadError message="Error Loading Pdf File" />}
+          >
             {Array.from(new Array(numPages), (_el, index) => (
-              <div
-              className="my-2 rounded-lg overflow-hidden"
+              <Card
+                className="my-2 rounded-lg overflow-hidden bg-card"
                 key={`page_${index + 1}`}
-                ref={(el :HTMLDivElement | null) => {pageRefs.current[index] = el}}
+                ref={(el: HTMLDivElement | null) => {
+                  pageRefs.current[index] = el;
+                }}
               >
-                <Page scale={zoom} pageNumber={index + 1} width={maxWidth} loading={<DocumentLoader/>} renderAnnotationLayer={false} renderTextLayer={false} className={"flex justify-center"}/>
-              </div>
+                <Page
+                  scale={zoom}
+                  pageNumber={index + 1}
+                  width={maxWidth}
+                  loading={<DocumentLoader />}
+                  renderAnnotationLayer={false}
+                  renderTextLayer={false}
+                  className={"flex justify-center "}
+                  canvasBackground="transparent"
+                />
+              </Card>
             ))}
           </Document>
         </div>
         <div className="w-full flex justify-center absolute  bottom-20 z-30 opacity-0 group-hover:opacity-100 transition-opacity ">
-          <div className="w-auto flex justify-stretch gap-2 items-center bg-cyan-700/80 hover:bg-cyan-700/85 rounded-lg ">
+          <div className="w-auto flex justify-stretch gap-2 items-center bg-primary/80 backdrop-blur-sm hover:bg-primary/85 rounded-md ">
             <Button
               variant={"ghost"}
               size={"icon"}
-              className="cursor-pointer hover:bg-cyan-400/80"
+              className="cursor-pointer hover:bg-muted/35 transition-all"
               onClick={zoomOut}
             >
               <MinusSquare className="text-slate-800" />
@@ -123,44 +137,44 @@ export default function PdfViewer({ url }: Props) {
             <Button
               variant={"ghost"}
               size={"icon"}
-              className="cursor-pointer hover:bg-cyan-400/80"
+              className="cursor-pointer hover:bg-muted/35 transition-all"
               onClick={zoomIn}
             >
               <PlusSquareIcon className="text-slate-800" />
             </Button>
           </div>
         </div>
-        <div className="navigation w-auto flex justify-center items-center">
-          <button
+        <div className="navigation w-auto mt-2 flex gap-2 justify-center items-center">
+          <Button
             onClick={handlePrevPage}
             disabled={currentPage <= 1}
-            className="px-4 py-2 mr-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+            variant={"default"}
           >
             Previous
-          </button>
+          </Button>
           <div>
             <span className="font-semibold">
               Page &nbsp;
               <Input
                 value={currentPage}
-                onChange={(e)=>{
-                  const val:number = parseInt(e.target.value,10);
+                type="number"
+                onChange={(e) => {
+                  const val: number = parseInt(e.target.value, 10);
                   scrollToPage(val);
                   setCurrentPage(val);
                 }}
-                className="w-7 p-0 inline outline-gray-50 h-7 bg-gray-100 "
+                min={0}
+                max={numPages}
+                className="max-w-max text-center p-1 inline outline-gray-50 h-7 "
+                size={numPages.toString().length}
               />
               &nbsp;of {numPages}
             </span>
           </div>
 
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage >= numPages}
-            className="px-4 py-2 ml-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-          >
+          <Button onClick={handleNextPage} disabled={currentPage >= numPages}>
             Next
-          </button>
+          </Button>
         </div>
       </div>
     </>

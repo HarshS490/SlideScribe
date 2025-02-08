@@ -25,21 +25,21 @@ async function page({ params }: Props) {
           <Link href={"/dashboard"}>
             <Button
               type="button"
-              variant={"secondary"}
-              className="text-cyan-800 p-2"
+              variant={"outline"}
+              className="hover:bg-primary/25"
             >
               <ArrowLeft className="w-4 h-4" />
               &nbsp;
               <span className="block sm:text-lg">Dashboard</span>
             </Button>
           </Link>
-          <Button className="bg-cyan-700 hover:bg-cyan-600">
+          <Button type="button" variant={'default'}>
             <Download className="w-5 h-5 " />
             &nbsp;<span className="hidden sm:block sm:text-lg">Download</span>
           </Button>
         </section>
         <section>
-          <h1 className="text-center text-xl font-semibold text-cyan-900">
+          <h1 className="text-center text-2xl font-semibold text-primary">
             {presentation?presentation.title.toUpperCase():"No file Found"}
           </h1>
           <PresentationNarration presentation={presentation}/>

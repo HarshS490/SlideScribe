@@ -83,13 +83,13 @@ const PresentationCard = ({
 
   return (
     <Card
-      className="w-full h-full min-w-52 max-w-96 focus:focus-within:outline-none focus:ring ring-ring focus-whitin:ring focus-within:ring-ring  cursor-pointer group/container"
+      className="w-full h-full min-w-52 max-w-96 bg-muted hover:scale-105 hover:shadow-lg dark:bg-card focus:focus-within:outline-none focus:ring ring-ring focus-whitin:ring focus-within:ring-ring  cursor-pointer group/container transition-all"
       aria-label="Presentation"
       tabIndex={0}
       onClick={handleParentClick}
     >
       <CardContent className="h-full overflow-hidden rounded-lg flex-col items-center p-2  transition-all">
-        <div className="w-full relative h-44  bg-card rounded-lg overflow-hidden ">
+        <div className="w-full border border-border relative h-44  rounded-lg overflow-hidden ">
           <Skeleton
             className={clsx(
               isImageLoading ? "w-full h-full bg-gray-300" : "hidden"
