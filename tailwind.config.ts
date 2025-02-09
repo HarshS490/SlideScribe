@@ -59,6 +59,11 @@ const config: Config = {
       gridTemplateColumns:{
         "auto-fill-52": 'repeat(auto-fill,minmax(208px, 1fr))',
         "auto-fit-52": "repeat(auto-fit,minmax(208px,1fr))"
+      },
+      fontFamily:{
+        "geist-sans":['var(--font-geist-sans)'],
+        "geist-mono":['var(--font-geist-mono)'],
+        "space-grotesk":['var(--font-space-grotesk)']
       }
     },
   },

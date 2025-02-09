@@ -48,7 +48,7 @@ const PresentationCard = ({
     const parts = text.split(regex);
     return parts.map((part, index) =>
       regex.test(part) ? (
-        <span key={index} className="bg-yellow-200 font-bold">
+        <span key={index} className="bg-primary/50 font-bold">
           {part}
         </span>
       ) : (
@@ -106,7 +106,7 @@ const PresentationCard = ({
             draggable="false"
             fill={true}
             onLoad={() => setIsImageLoading(false)}
-            sizes="(max-width:200px) 70vw,(max-width:1200px) 33vw"
+            sizes="(max-width:200px) 70vw,(max-width:1200px) 30vw"
           />
           <div className="-z-20 group-hover/container:z-10 focus-within:z-10 relative w-full h-full transition-all  bg-slate-900/20 ">
             <DropdownMenu modal={true} >
