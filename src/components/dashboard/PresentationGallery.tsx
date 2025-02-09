@@ -77,8 +77,10 @@ function PresentationGallery() {
           <Input
             value={query}
             onChange={queryChange}
+            type="text"
             className="text-slate-600 border-gray-400 rounded-sm p-3 pl-10 font-medium placeholder-gray-400 focus:ring-gray-600 focus:border-gray-600 w-full"
             placeholder="Search presentations..."
+            id="file-search-query"
           />
         </div>
 

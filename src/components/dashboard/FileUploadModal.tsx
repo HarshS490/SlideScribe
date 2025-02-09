@@ -24,11 +24,10 @@ type Props = {
   updatePresentations: (newItem: Presentation) => void;
 };
 
-function FileUploadButton({updatePresentations}: Props) {
+function FileUploadButton({ updatePresentations }: Props) {
   const { isOpen, openModal, closeModal } = useModal();
   const [loading, setLoading] = useState(false);
   const [attachedFile, setAttachedFile] = useState<AttachedFile>(null);
-
 
   const {
     register,
@@ -44,7 +43,6 @@ function FileUploadButton({updatePresentations}: Props) {
     required: { value: true, message: "Please upload a file" },
   });
 
-
   const formSubmit = async (formdata: FileUploadSchema) => {
     setLoading(true);
 
@@ -57,14 +55,16 @@ function FileUploadButton({updatePresentations}: Props) {
         method: "POST",
         body: formData,
       });
+
       if (!response.ok) {
-        console.log(response.statusText);
         throw new Error(response.statusText);
       }
+
       toast.success("File Uploaded", { id: "FileUploadSuccess" });
-      const {data} = await response.json();
+      const { data } = await response.json();
+
       updatePresentations(data);
-      console.log(response);
+      handleClose();
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message, { id: "FileUploadError" });
@@ -73,7 +73,6 @@ function FileUploadButton({updatePresentations}: Props) {
       }
     } finally {
       setLoading(false);
-      closeModal();
     }
   };
 
@@ -88,7 +87,7 @@ function FileUploadButton({updatePresentations}: Props) {
     resetField("file");
   };
 
-  const onFileChange =async (e: ChangeEvent<HTMLInputElement>) => {
+  const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     e.persist();
     const ele = e.target;
     if (ele.files && ele.files.length > 0) {
@@ -100,8 +99,7 @@ function FileUploadButton({updatePresentations}: Props) {
       }
     }
   };
-  
-  
+
   return (
     <>
       <Button
@@ -111,7 +109,9 @@ function FileUploadButton({updatePresentations}: Props) {
         className="relative"
       >
         <Upload className="size-4 sm:size-6" />
-        <span className="overflow-hidden opacity-0 w-0 min-[400px]:opacity-100 min-[400px]:w-auto  transition-all ease-in-out">Upload Presentation</span>
+        <span className="overflow-hidden opacity-0 w-0 min-[400px]:opacity-100 min-[400px]:w-auto  transition-all ease-in-out">
+          Upload Presentation
+        </span>
       </Button>
       <Modal isOpen={isOpen} handleClose={handleClose}>
         <form
@@ -135,12 +135,12 @@ function FileUploadButton({updatePresentations}: Props) {
           </div>
           <div className="flex-col items-center ">
             <div className="my-2">
-              <label htmlFor="text-input">
+              <label htmlFor="title">
                 Title<sup className="text-red-500">*</sup>
               </label>
               <Input
                 type="text"
-                id="title-input"
+                id="title"
                 className="block"
                 required={true}
                 {...register("title")}

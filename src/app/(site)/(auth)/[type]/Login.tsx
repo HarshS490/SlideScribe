@@ -94,7 +94,7 @@ export default function Login() {
     <div className="container relative mx-auto flex flex-col items-center justify-center min-h-screen">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="text-center">
-          <h1 className="font-medium text-3xl text-blue-700">{"Login"}</h1>
+          <h1 className="font-medium text-3xl text-primary">{"Login"}</h1>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col flex-1  space-y-6">
@@ -141,7 +141,7 @@ export default function Login() {
               {"Already have an account ? "}
               <Link
                 href={"/signup"}
-                className="text-blue-600 underline underline-offset-2"
+                className="text-primary underline underline-offset-2"
               >
                 Sign Up
               </Link>
