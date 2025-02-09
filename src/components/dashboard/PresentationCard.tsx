@@ -83,7 +83,7 @@ const PresentationCard = ({
 
   return (
     <Card
-      className="w-full h-full min-w-52 max-w-96 bg-muted hover:scale-105 hover:shadow-lg dark:bg-card focus:focus-within:outline-none focus:ring ring-ring focus-whitin:ring focus-within:ring-ring  cursor-pointer group/container transition-all"
+      className="w-full h-full min-w-52 max-w-96 bg-muted hover:shadow-lg dark:bg-card focus:focus-within:outline-none focus:ring ring-ring focus-whitin:ring focus-within:ring-ring  cursor-pointer group/container transition-all"
       aria-label="Presentation"
       tabIndex={0}
       onClick={handleParentClick}
@@ -109,16 +109,14 @@ const PresentationCard = ({
             sizes="(max-width:200px) 70vw,(max-width:1200px) 33vw"
           />
           <div className="-z-20 group-hover/container:z-10 focus-within:z-10 relative w-full h-full transition-all  bg-slate-900/20 ">
-            <DropdownMenu>
+            <DropdownMenu modal={true} >
               <DropdownMenuTrigger
-                tabIndex={0}
                 className="absolute top-1 right-10 focus:outline-none p-1 rounded-full hover:bg-primary-foreground group/menu focus:bg-primary-foreground"
               >
                 <Ellipsis className="rounded-lg border stroke-2  border-primary hover:border-primary stroke-primary hover:stroke-primary group-focus/menu:primary group-focus/menu:border-primary" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-secondary rounded-lg p-1 my-2" tabIndex={0}>
+              <DropdownMenuContent align="center" side="bottom" className="bg-secondary rounded-lg p-1 my-2">
                 <DropdownMenuItem
-                  tabIndex={0}
                   className="text-center p-2 rounded-lg align-middle flex gap-2 items-center hover:bg-primary/25 outline-none hover:outline-none"
                   onClick={(e) => {
                     e.stopPropagation();
