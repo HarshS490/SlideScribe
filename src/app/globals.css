@@ -67,10 +67,10 @@
     @apply font-semibold;
   }
   ::selection{
-    @apply bg-primary/50
+    @apply bg-primary/50 rounded-md
     
   }
   ::-moz-selection{
-    @apply bg-primary/50
+    @apply bg-primary/50 rounded-sm
   }
 }

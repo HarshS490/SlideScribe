@@ -21,6 +21,21 @@ type Props = {
   deletePresentation: (id: string) => void;
 };
 
+export const getHighlightedText = (text: string, highlight: string) => {
+  if (!highlight) return text;
+  const regex = new RegExp(`(${highlight})`, "gi");
+  const parts = text.split(regex);
+  return parts.map((part, index) =>
+    regex.test(part) ? (
+      <span key={index} className="bg-primary/50 font-bold">
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+};
+
 const PresentationCard = ({
   presentation,
   highlight,
@@ -42,20 +57,7 @@ const PresentationCard = ({
     }
   };
 
-  const getHighlightedText = (text: string, highlight: string) => {
-    if (!highlight) return text;
-    const regex = new RegExp(`(${highlight})`, "gi");
-    const parts = text.split(regex);
-    return parts.map((part, index) =>
-      regex.test(part) ? (
-        <span key={index} className="bg-primary/50 font-bold">
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  };
+  
 
   const deleteHandler = async () => {
     try {

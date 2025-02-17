@@ -21,5 +21,5 @@ export default withAuth(function middleware(req) {
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*","/login","/users/:path"],
+  matcher: ["/dashboard/:path*","/login","/users/:path","/dummy/:path*"],
 };

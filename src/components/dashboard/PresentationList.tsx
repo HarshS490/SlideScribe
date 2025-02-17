@@ -1,53 +1,103 @@
-import { PresentationDisplayType } from "@/app/types/presentation";
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import PresentationCard from "./PresentationCard";
+import { useSearchParams } from "next/navigation";
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { fetchPresentations } from "@/app/actions/dataFetch";
+import { Presentation } from "@prisma/client";
+import Loader from "../custom/Loader";
 
-type Props = {
-  presentations: PresentationDisplayType[] | null;
-  query: string;
-  sortBy: string;
-  deletePresentation:(id:string)=>void;
-};
+type InfinitePresentationsData = InfiniteData<
+  | {
+      data: Presentation[];
+      currentPage: number;
+      nextPage: number | null;
+    }
+  | undefined
+>;
 
-function PresentationList({ presentations, query, sortBy,deletePresentation }: Props) {
-  
+function PresentationList() {
+  const searchParams = useSearchParams();
+  const title = searchParams.get("title") || "";
+  const sortBy = searchParams.get("sortBy") || "desc";
+  const queryClient = useQueryClient();
+  const queryKey = useMemo(() => ["Presentations", title], [title]);
 
-  const sortedAndFiltered = useMemo(() => {
-    const clonedPresentations = [...(presentations || [])];
+  const { data, isFetching, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: queryKey,
+    queryFn: ({ pageParam = 1 }) =>
+      fetchPresentations({ pageParam, title, sortBy }),
+    getNextPageParam: (lastPage) => {
+      return lastPage?.nextPage;
+    },
+    refetchOnWindowFocus: false,
+  });
 
-    clonedPresentations.sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
-      if (sortBy.toLowerCase() == "title") {
-        if (a.title > b.title) return 1;
-        else if (a.title < b.title) return -1;
-        return dateA.getTime() - dateB.getTime();
-      } else {
-        return dateA.getTime() - dateB.getTime();
-      }
+  const handleScroll = useCallback(() => {
+    const bottom =
+      window.innerHeight + window.scrollY >=
+      document.documentElement.scrollHeight - 1;
+    if (bottom && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
+
+  const deletePresentation = (id: string) => {
+    queryClient.setQueryData<InfinitePresentationsData>(queryKey, (oldData) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        pages: oldData.pages.map((page) => {
+          if (!page) return page;
+
+          return {
+            ...page,
+            data: page.data.filter(
+              (presentation: Presentation) => presentation.id !== id
+            ),
+          };
+        }),
+        pageParams: oldData.pageParams,
+      };
     });
-
-    const lowerQuery = query.toLocaleLowerCase();
-    
-    return clonedPresentations.filter((item) => {
-      const title = item.title.toLowerCase();
-      return title.includes(lowerQuery);
-    });
-  }, [sortBy, presentations, query]);
+  };
 
   return (
     <>
-      {sortedAndFiltered &&
-        sortedAndFiltered.map((presentation) => {
+      <section
+        aria-live="polite"
+        aria-atomic="true"
+        className="my-4 grid justify-items-center lg:grid-cols-4 gap-8 grid-cols-auto-fit-52 transition-all"
+      >
+        {data?.pages?.map((page, index) => {
           return (
-            <PresentationCard
-              presentation={presentation}
-              key={presentation.id}
-              highlight={query}
-              deletePresentation={deletePresentation}
-            />
+            <React.Fragment key={index}>
+              {page?.data?.map((presentation: Presentation) => {
+                return (
+                  <PresentationCard
+                    presentation={presentation}
+                    key={presentation.id}
+                    highlight={title}
+                    deletePresentation={deletePresentation}
+                  ></PresentationCard>
+                );
+              })}
+            </React.Fragment>
           );
         })}
+      </section>
+
+      {isFetching && <Loader />}
     </>
   );
 }

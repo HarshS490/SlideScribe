@@ -14,14 +14,13 @@ import fileUploadSchema from "@/models/fileUploadSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
-import { Presentation } from "@prisma/client";
 
 type FileUploadSchema = z.infer<typeof fileUploadSchema>;
 
 type AttachedFile = File | null;
 
 type Props = {
-  updatePresentations: (newItem: Presentation) => void;
+  updatePresentations: () => void;
 };
 
 function FileUploadButton({ updatePresentations }: Props) {
@@ -61,9 +60,8 @@ function FileUploadButton({ updatePresentations }: Props) {
       }
 
       toast.success("File Uploaded", { id: "FileUploadSuccess" });
-      const { data } = await response.json();
 
-      updatePresentations(data);
+      updatePresentations();
       handleClose();
     } catch (error) {
       if (error instanceof Error) {
