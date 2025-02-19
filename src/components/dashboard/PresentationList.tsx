@@ -34,6 +34,8 @@ function PresentationList() {
       return lastPage?.nextPage;
     },
     refetchOnWindowFocus: false,
+    refetchOnMount:true,
+    refetchOnReconnect:true,
   });
 
   const handleScroll = useCallback(() => {

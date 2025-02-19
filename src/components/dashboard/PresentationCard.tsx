@@ -45,7 +45,10 @@ const PresentationCard = ({
 
   const linkRef = useRef<HTMLAnchorElement>(null);
   const imageLink = useMemo(() => {
-    const modifiedLink = presentation.link.replace(".pdf", ".png");
+    const tempLink = presentation.link.split("/upload/");
+    const temp2 = tempLink[0]+"/upload/"+"f_webp,q_auto,w_500,h_500,c_fit/"+tempLink[1];
+    const modifiedLink = temp2.replace(".pdf", ".png");
+    console.log(modifiedLink);
     return modifiedLink;
   }, [presentation]);
   const handleParentClick = (

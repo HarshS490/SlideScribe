@@ -31,6 +31,7 @@ export const fetchPresentations = async ({
       nextPage: 12 > result.data.length ? null : pageParam + 1,
     };
   } catch{
+    console.log("error agya bhai");
     toast.error("Error fetching data",{id:"PRESENTATION_FETCHING"});
   }
 };
